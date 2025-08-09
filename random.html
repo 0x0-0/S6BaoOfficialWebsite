@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>随机数生成器 - 增强版</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            white-space: pre-wrap;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .exclude-numbers {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 10px;
+        }
+        .exclude-tag {
+            background-color: #e0e0e0;
+            padding: 3px 8px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+        }
+        .exclude-tag button {
+            background-color: transparent;
+            color: #666;
+            border: none;
+            margin-left: 5px;
+            padding: 0;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        #excludeInput {
+            width: auto;
+            display: inline-block;
+            margin-right: 10px;
+        }
+        .add-exclude-btn {
+            background-color: #2196F3;
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+        .add-exclude-btn:hover {
+            background-color: #0b7dda;
+        }
+        .back-button {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            padding: 8px 15px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            color: #333;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-button">← 返回</a>
+    <div class="container">
+        <h1>随机数生成器 - 增强版</h1>
+        
+        <div class="form-group">
+            <label for="min">最小值:</label>
+            <input type="number" id="min" value="1">
+        </div>
+        
+        <div class="form-group">
+            <label for="max">最大值:</label>
+            <input type="number" id="max" value="100">
+        </div>
+        
+        <div class="form-group">
+            <label for="count">生成数量:</label>
+            <input type="number" id="count" value="10" min="1">
+        </div>
+        
+        <div class="form-group">
+            <label for="order">排列方式:</label>
+            <select id="order">
+                <option value="original">原始顺序</option>
+                <option value="asc">升序排列</option>
+                <option value="desc">降序排列</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="unique">
+                <input type="checkbox" id="unique" checked>
+                唯一值 (不重复)
+            </label>
+        </div>
+        
+        <div class="form-group">
+            <label>排除数字:</label>
+            <div>
+                <input type="number" id="excludeInput" placeholder="输入要排除的数字">
+                <button class="add-exclude-btn" onclick="addExcludeNumber()">添加</button>
+            </div>
+            <div id="excludeNumbers" class="exclude-numbers"></div>
+        </div>
+        
+        <button onclick="generateNumbers()">生成随机数</button>
+        
+        <div id="error" class="error"></div>
+        
+        <div class="form-group">
+            <label for="results">结果:</label>
+            <div id="results" class="results">点击"生成随机数"按钮获取结果</div>
+        </div>
+    </div>
+
+    <script>
+        let excludeNumbers = [];
+        
+        function addExcludeNumber() {
+            const input = document.getElementById('excludeInput');
+            const value = parseInt(input.value);
+            
+            if (isNaN(value)) {
+                alert('请输入有效的数字');
+                return;
+            }
+            
+            if (!excludeNumbers.includes(value)) {
+                excludeNumbers.push(value);
+                renderExcludeNumbers();
+            }
+            
+            input.value = '';
+            input.focus();
+        }
+        
+        function removeExcludeNumber(number) {
+            excludeNumbers = excludeNumbers.filter(n => n !== number);
+            renderExcludeNumbers();
+        }
+        
+        function renderExcludeNumbers() {
+            const container = document.getElementById('excludeNumbers');
+            container.innerHTML = '';
+            
+            excludeNumbers.forEach(number => {
+                const tag = document.createElement('div');
+                tag.className = 'exclude-tag';
+                tag.innerHTML = `
+                    ${number}
+                    <button onclick="removeExcludeNumber(${number})">×</button>
+                `;
+                container.appendChild(tag);
+            });
+        }
+        
+        function generateNumbers() {
+            const min = parseInt(document.getElementById('min').value);
+            const max = parseInt(document.getElementById('max').value);
+            const count = parseInt(document.getElementById('count').value);
+            const order = document.getElementById('order').value;
+            const unique = document.getElementById('unique').checked;
+            
+            const errorElement = document.getElementById('error');
+            errorElement.textContent = '';
+            
+            // 验证输入
+            if (isNaN(min) || isNaN(max) || isNaN(count)) {
+                errorElement.textContent = '请输入有效的数字';
+                return;
+            }
+            
+            if (min >= max) {
+                errorElement.textContent = '最大值必须大于最小值';
+                return;
+            }
+            
+            if (count <= 0) {
+                errorElement.textContent = '生成数量必须大于0';
+                return;
+            }
+            
+            // 计算可用数字范围
+            const availableNumbers = [];
+            for (let i = min; i <= max; i++) {
+                if (!excludeNumbers.includes(i)) {
+                    availableNumbers.push(i);
+                }
+            }
+            
+            if (availableNumbers.length === 0) {
+                errorElement.textContent = '没有可用的数字 (所有数字都被排除了)';
+                return;
+            }
+            
+            if (unique && availableNumbers.length < count) {
+                errorElement.textContent = `范围内只有 ${availableNumbers.length} 个可用唯一值，无法生成 ${count} 个不重复的数字`;
+                return;
+            }
+            
+            // 生成随机数
+            let numbers = [];
+            
+            if (unique) {
+                // 生成不重复的随机数
+                const shuffledNumbers = [...availableNumbers];
+                
+                // Fisher-Yates 洗牌算法
+                for (let i = shuffledNumbers.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledNumbers[i], shuffledNumbers[j]] = [shuffledNumbers[j], shuffledNumbers[i]];
+                }
+                
+                numbers = shuffledNumbers.slice(0, count);
+            } else {
+                // 生成允许重复的随机数
+                for (let i = 0; i < count; i++) {
+                    const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+                    numbers.push(availableNumbers[randomIndex]);
+                }
+            }
+            
+            // 排序
+            if (order === 'asc') {
+                numbers.sort((a, b) => a - b);
+            } else if (order === 'desc') {
+                numbers.sort((a, b) => b - a);
+            }
+            
+            // 显示结果
+            document.getElementById('results').textContent = numbers.join(', ');
+        }
+        
+        // 允许按Enter键添加排除数字
+        document.getElementById('excludeInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                addExcludeNumber();
+            }
+        });
+    </script>
+</body>
+</html>
