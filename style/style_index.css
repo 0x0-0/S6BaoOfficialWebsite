@@ -1,0 +1,281 @@
+/* 基础样式和变量定义 */
+:root {
+    --primary-color: #4CAF50; /* 改为植物大战僵尸风格的绿色 */
+    --secondary-color: #2E7D32; /* 深绿色 */
+    --light-color: #f5f5f5;
+    --dark-color: #333;
+    --accent-color: #FFC107; /* 强调色 - 黄色 */
+}
+
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    color: var(--dark-color);
+    background-color: #f9f9f9;
+}
+
+/* 头部样式 */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    background-color: var(--secondary-color);
+    color: white;
+    position: fixed;
+    width: 90%;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.logo-container {
+    height: 8vh;
+}
+
+.logo {
+    height: 100%;
+    width: auto;
+    transition: transform 0.3s;
+}
+
+.logo:hover {
+    transform: scale(1.05);
+}
+
+.nav ul {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav li {
+    margin-left: 1.5rem;
+}
+
+.nav a {
+    color: white;
+    text-decoration: none;
+    transition: color 0.3s;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+.nav a:hover {
+    color: var(--accent-color);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* 主要内容区域 */
+.main-content {
+    padding-top: 10vh; /* 为固定头部留出空间 */
+}
+
+/* 英雄区域 - 全屏背景 */
+.hero {
+    height: 95vh;
+    background-image: url('../image/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.hero-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 0 10%;
+    z-index: 2;
+    color: white;
+}
+
+.hero-logo {
+    height: 50vh;
+    max-width: 40%;
+    animation: float 3s ease-in-out infinite;
+}
+
+.hero-text {
+    max-width: 40%;
+}
+
+.hero-text h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: var(--accent-color);
+}
+
+.hero-text p {
+    font-size: 1.2rem;
+    line-height: 1.8;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 1.5rem;
+    z-index: 2;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+}
+
+/* 功能区域 */
+.features {
+    padding: 5rem 10%;
+    background-color: white;
+}
+
+.section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    margin-bottom: 3rem;
+    color: var(--secondary-color);
+    position: relative;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 4px;
+    background-color: var(--accent-color);
+    margin: 1rem auto;
+}
+
+/* 功能网格布局 */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feature-card {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+    text-decoration: none;
+    color: var(--dark-color);
+}
+
+.feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.feature-image-container {
+    height: 200px;
+    overflow: hidden;
+}
+
+.feature-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s;
+}
+
+.feature-card:hover .feature-image {
+    transform: scale(1.1);
+}
+
+.feature-info {
+    padding: 1.5rem;
+    flex-grow: 1;
+}
+
+.feature-info h3 {
+    margin-top: 0;
+    color: var(--secondary-color);
+    font-size: 1.5rem;
+}
+
+.feature-info p {
+    color: #666;
+}
+
+/* 页脚样式 */
+.footer {
+    text-align: center;
+    padding: 2rem;
+    background-color: var(--secondary-color);
+    color: white;
+    font-size: 0.9rem;
+}
+
+/* 动画效果 */
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+    40% { transform: translateY(-20px) translateX(-50%); }
+    60% { transform: translateY(-10px) translateX(-50%); }
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+    .hero-content {
+        flex-direction: column;
+        text-align: center;
+        padding-top: 5rem;
+    }
+    
+    .hero-logo, .hero-text {
+        max-width: 90%;
+    }
+    
+    .hero-text {
+        margin-top: 2rem;
+    }
+    
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .header {
+        flex-direction: column;
+        padding: 1rem;
+    }
+    
+    .nav ul {
+        margin-top: 1rem;
+    }
+}
+/* 确保滚动行为流畅 */
+html {
+    scroll-behavior: smooth;
+}
+
+/* 防止在滚动动画期间多次触发 */
+body.no-scroll {
+    overflow: hidden;
+}

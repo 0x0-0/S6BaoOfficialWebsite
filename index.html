@@ -1,430 +1,120 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>植物布阵器</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>S6包官网 - PVZ改版</title>
+    <link rel="stylesheet" href="style/style_index.css">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>S6包版布阵器</h1>
-            <p class="description">在5×9的网格上添加、移动和删除植物</p>
+    <header class="header">
+        <div class="logo-container">
+            <img src="image/logo.png" alt="S6包Logo" class="logo"/>
         </div>
-        <div class="grid-container">
-            <div class="grid-header">
-                <span class="grid-title">阵容编辑区 (5×9)</span>
-                <button class="reset-btn" id="reset-btn">重置阵容</button>
-                <span class="grid-count" id="grid-count">0 / 45 已放置</span>
-            </div>
-            <div class="battle-grid" id="battle-grid"></div>
-        </div>
-        
-        <div class="plant-library">
-            <div class="library-header">
-                <span class="library-title">植物库</span>
-            </div>
-            <div class="plants-grid" id="plants-grid"></div>
-        </div>
-        
+        <nav class="nav">
+            <ul id="navLinks"></ul>
+        </nav>
+    </header>
 
-        <div class="export-section">
-            <button class="import-btn" id="import-btn">从剪切板导入阵容</button>
-        </div>
-        <div class="export-section">
-            <button class="export-btn" id="export-btn">导出图片</button>
-            <button class="export-btn" id="export-txt-btn">导出文字<button>
-        </div>
-        
-        <div class="instructions">
-            <h2>使用说明</h2>
-            在植物库/网格中选择，再次点击取消选择
-        </div>
-        
-        <div class="crew">
-        <h2>网页制作成员</h2>
-        <a href="https://b23.tv/BIravzA"><img src="crew_image/sh_lhc.avif" alt="sh_lhc" class="crew_pic" /></a>
-        <a href="https://space.bilibili.com/3494355979471234"><img src="crew_image/xpok_kkkk.avif" alt="xpok_kkkk" class="crew_pic"/></a>
-        </div>
-        <div class="crew">
-        <h2>S6包制作组成员</h2>
-        <a href="https://space.bilibili.com/1877927192"><img src="crew_image/baobao.avif" alt="混包包" class="crew_pic"/></a>
-        <a href="https://space.bilibili.com/3494355979471234"><img src="crew_image/xpok_kkkk.avif" alt="xpok_kkkk" class="crew_pic"/></a>
-        <a href="https://space.bilibili.com/3493134633798045"><img src="crew_image/miko.jpg" alt="神子" class="crew_pic"/></a>
-        <a href="https://space.bilibili.com/1729560207"><img src="crew_image/yanji.avif" alt="言己" class="crew_pic"/></a>
-        
-    </div>
-    </div>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    
+    <main class="main-content">
+        <!-- 全屏背景图 -->
+        <section class="hero">
+            <div class="hero-content">
+                <img src="image/logo-large.png" alt="S6包大型Logo" class="hero-logo"/>
+                <div class="hero-text">
+                    <h1>S6包 - PVZ改版</h1>
+                    <p>全新的植物大战僵尸体验，更多植物、更多僵尸、更多关卡等你来挑战！</p>
+                </div>
+            </div>
+            <div class="scroll-indicator">↓ 向下滚动 ↓</div>
+        </section>
+
+        <!-- 功能区域 -->
+        <section class="features">
+            <h2 class="section-title">功能列表</h2>
+            <div id="featureGrid" class="feature-grid"></div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>S6包制作组 - 植物大战僵尸改版</p>
+    </footer>
+
     <script>
-        // 植物库数据
-        const plants = [    
-{ id: 0, name: '狙击豌豆'},
-{ id: 1, name: '百变大麦'},
-{ id: 2, name: '樱桃炸弹'},
-{ id: 3, name: '坚果'},
-{ id: 4, name: '雷 土豆地雷'},
-{ id: 5, name: '寒冰射手'},
-{ id: 6, name: '嘴'},
-{ id: 7, name: '双发射手'},
-{ id: 8, name: '小喷'},
-{ id: 9, name: '阳光菇'},
-{ id: 10, name: '喷神'},
-{ id: 12, name: '魅惑菇'},
-{ id: 13, name: '胆小菇'},
-{ id: 14, name: '川 冰川菇'},
-{ id: 15, name: '毁灭菇'},
-{ id: 16, name: '荷叶'},
-{ id: 17, name: '窝瓜'},
-{ id: 18, name: '三线'},
-{ id: 19, name: '缠绕水草'},
-{ id: 20, name: '火爆辣椒'},
-{ id: 21, name: '地刺'},
-{ id: 22, name: '火炬树桩'},
-{ id: 23, name: '高坚果'},
-{ id: 24, name: '海蘑菇'},
-{ id: 25, name: '灯'},
-{ id: 26, name: '仙人掌'},
-{ id: 27, name: '叶'},
-{ id: 28, name: '裂夹'},
-{ id: 29, name: '杨桃' },
-{ id: 31, name: '磁力菇' },
-{ id: 32, name: '卷心菜' },
-{ id: 33, name: '盆' },
-{ id: 34, name: '玉米投手' },
-{ id: 35, name: '咖啡豆' },
-{ id: 36, name: '蒜' },
-{ id: 37, name: '伞' },
-{ id: 38, name: '金盏花'},
-{ id: 39, name: '瓜'},
-{ id: 40, name: '机枪'},
-{ id: 41, name: '冻 冰冻生菜'},
-{ id: 42, name: '曾 忧郁菇'},
-{ id: 43, name: '猫尾草'},
-{ id: 44, name: '冰西瓜'},
-{ id: 45, name: '吸金磁'},
-{ id: 46, name: '钢地刺'},
-{ id: 47, name: '炮 玉米加农炮'},
-{ id: 48, name: '随机'},
-{ id: 49, name: '爆炸坚果'},
-{ id: 51, name: '飘飘'},
-{ id: 52, name: '反向双发'},
-{ id: 54, name: '孢子菇'},
-{ id: 55, name: '飓风甘蓝'},
-{ id: 56, name: '缩小紫罗兰'},                       
-{ id: 57, name: '激光豆'},
-{ id: 58, name: '板栗小队'},
-{ id: 59, name: '鳄梨'},
-{ id: 60, name: '强酸柠檬'},
+        document.addEventListener('DOMContentLoaded', function() {
+            // 导航菜单数据
+            const navItems = [
+                { name: '首页', url: '#' },
+                { name: '联系我们', url: 'contact.html' }
+            ];
 
-];
+            // 功能按钮数据 - 每个功能包含名称、URL、图片和描述
+            const features = [
+                { 
+                    name: '布阵器', 
+                    url: 'arrange.html',
+                    image: 'image/arrange-tool.png',
+                    description: '自定义你的植物布局，打造完美防御阵型'
+                },
+                // 可以继续添加更多功能
+                // { name: '新植物图鉴', url: 'plants.html', image: 'image/plants.png', description: '查看所有新增植物' },
+                // { name: '关卡编辑器', url: 'editor.html', image: 'image/editor.png', description: '创建自己的PVZ关卡' }
+            ];
 
-        // 初始化网格
-        const battleGrid = document.getElementById('battle-grid');
-        const plantsGrid = document.getElementById('plants-grid');
-        const resetBtn = document.getElementById('reset-btn');
-        const exportBtn = document.getElementById('export-btn');
-        const importBtn = document.getElementById('import-btn');
-        const exportTxtBtn =document.getElementById("export-txt-btn");
-        const gridCount = document.getElementById('grid-count');
-        
-        let selectedPlant = null;
-        let selectedCell = null;
-        let placedPlants = 0;
-        
-        // 创建5x9网格
-        for (let row = 0; row < 5; row++) {
-            for (let col = 0; col < 9; col++) {
-                const cell = document.createElement('div');
-                cell.className = 'grid-cell';
-                cell.dataset.row = row;
-                cell.dataset.col = col;
+            // 渲染导航菜单
+            const navLinksContainer = document.getElementById('navLinks');
+            navItems.forEach(item => {
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = item.url;
+                a.textContent = item.name;
+                li.appendChild(a);
+                navLinksContainer.appendChild(li);
+            });
+
+            // 渲染功能网格
+            const featureGridContainer = document.getElementById('featureGrid');
+            features.forEach(feature => {
+                const featureCard = document.createElement('a');
+                featureCard.href = feature.url;
+                featureCard.className = 'feature-card';
                 
-                const indicator = document.createElement('div');
-                indicator.className = 'selection-indicator';
-                cell.appendChild(indicator);
+                // 创建卡片内容
+                featureCard.innerHTML = `
+                    <div class="feature-image-container">
+                        <img src="${feature.image}" alt="${feature.name}" class="feature-image"/>
+                    </div>
+                    <div class="feature-info">
+                        <h3>${feature.name}</h3>
+                        <p>${feature.description}</p>
+                    </div>
+                `;
+                
+                featureGridContainer.appendChild(featureCard);
+            });
 
-                // 点击放置植物
-                cell.addEventListener('click', () => {
-                    if (selectedPlant) {//已选择植物库中的植物
-                        placePlant(cell, selectedPlant);
-                        return;
-                    }
-                    const hasPlant = cell.querySelector('.plant-in-cell') !== null;
-                    if (!selectedCell && hasPlant) {//没有选择且点击的单元格有植物
-                        selectCell(cell);
-                        cell.classList.add('selected');
-                        return;
-                    }
-                    //已选择单元格
-                    if (selectedCell) {
-                        // 点击了已选择的单元格
-                        if (selectedCell === cell) {
-                            deselectCell();
-                        } 
-                        // 点击了不同单元格
-                        else {
-                            swapPlants(selectedCell, cell);
-                            deselectCell(show_message=false);
-                        }
-                    }
+            // 平滑滚动效果
+            document.querySelector('.scroll-indicator').addEventListener('click', function() {
+                document.querySelector('.features').scrollIntoView({ 
+                    behavior: 'smooth' 
                 });
-                
-                battleGrid.appendChild(cell);
-            }
-        }
-        
-        // 创建植物库
-        plants.forEach(plant => {
-            const plantItem = document.createElement('div');
-            plantItem.className = 'plant-item';
-            plantItem.dataset.id = plant.id;
-            
-            const thumbnail = document.createElement('div');
-            thumbnail.className = 'plant-thumbnail';
-            thumbnail.style.backgroundImage = `url('image/${plant.id}.png')`;
-            
-            const idLabel = document.createElement('span');
-            idLabel.className = 'plant-id';
-            idLabel.textContent = plant.id;
-            
-            const indicator = document.createElement('div');
-            indicator.className = 'selection-indicator';
-            
-            plantItem.appendChild(thumbnail);
-            plantItem.appendChild(idLabel);
-            plantItem.appendChild(indicator);
-            
-            plantItem.addEventListener('click', () => {
-                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
-                if(selectedPlant != plant){
-                    selectedPlant = plant;
-                    selectedCell = null;
-                    plantItem.classList.add('selected');
-                    showMessage(`已选择: ${plant.name}`);
-                }
-                else{
-                    selectedPlant=null;
-                    showMessage(`已取消选择`);
-                }
+            });
 
-            });            
-            plantsGrid.appendChild(plantItem);
-        });
-        
-        // 放置植物
-        function placePlant(cell, plant, show_message=true) {
-            // 如果单元格已有植物，先移除
-            const existingPlant = cell.querySelector('.plant-in-cell');
-            if (existingPlant) {
-                cell.removeChild(existingPlant);
-                placedPlants--;
-            }
-            
-            const plantElement = document.createElement('div');
-            plantElement.className = 'plant-in-cell';
-            plantElement.style.backgroundImage = `url('image/${plant.id}.png')`;
-            plantElement.dataset.id = plant.id;
-            plantElement.dataset.name = plant.name;
-
-            // 添加删除按钮
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-btn';
-            deleteBtn.innerHTML = '×';
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation(); // 阻止事件冒泡
-                removePlant(cell);
-            });
-            
-            plantElement.appendChild(deleteBtn);
-            cell.appendChild(plantElement);
-            placedPlants++;
-            
-            updateGridCount();
-            if(show_message){
-                showMessage(`已放置: ${plant.name}`);
-            }
-        }
-        
-        // 移除植物
-        function removePlant(cell) {
-            const plant = cell.querySelector('.plant-in-cell');
-            if (plant) {
-                cell.removeChild(plant);
-                placedPlants--;
-                updateGridCount();
-                showMessage('已移除植物');
-            }
-        }
-        function selectCell(cell) {
-            selectedCell = cell;
-            const plantId = cell.querySelector('.plant-in-cell')?.dataset.id;
-            const plantName = plants.find(p => p.id == plantId)?.name;
-            showMessage(`已选择: ${plantName}`);
-        }
-        function deselectCell(show_message=true) {
-            if (selectedCell) {
-                selectedCell.classList.remove('selected');
-                selectedCell = null;
-                if(show_message){showMessage('已取消选择');}
-            }
-        }
-        function swapPlants(cell1, cell2) {
-            const plant1 = cell1.querySelector('.plant-in-cell');
-            const plant2 = cell2.querySelector('.plant-in-cell');
-            
-            // 保存植物数据
-            const plant1Data = plant1 ? {
-                id: plant1.dataset.id,
-                name: plant1.dataset.name,
-                image: plant1.style.backgroundImage
-            } : null;
-            const plant2Data = plant2 ? {
-                id: plant2.dataset.id,
-                name: plant2.dataset.name,
-                image: plant2.style.backgroundImage
-            } : null;
-            // 先移除两个单元格的植物
-            if (plant1) cell1.removeChild(plant1);
-            if (plant2) cell2.removeChild(plant2);
-            // 更新计数（先减去两个植物）
-            if (plant1) placedPlants--;
-            if (plant2) placedPlants--;
-            // 重新放置植物
-            if (plant1Data) {
-                placePlant(cell2, {
-                    id: plant1Data.id,
-                    name: plant1Data.name,
-                    image: plant1Data.image.replace(/url\(["']?(.*?)["']?\)/, "$1")
-                }, false);
-            }
-            if (plant2Data) {
-                placePlant(cell1, {
-                    id: plant2Data.id,
-                    name: plant2Data.name,
-                    image: plant2Data.image.replace(/url\(["']?(.*?)["']?\)/, "$1")
-                }, false);
-            }
-            showMessage('已交换植物位置');
-        }
-
-        // 重置网格
-        resetBtn.addEventListener('click', () => {
-            const cells = document.querySelectorAll('.grid-cell');
-            cells.forEach(cell => {
-                const plant = cell.querySelector('.plant-in-cell');
-                if (plant) {
-                    cell.removeChild(plant);
-                }
-                cell.classList.remove('selected');
-            });
-            document.querySelectorAll('.plant-item.selected').forEach(el => el.classList.remove('selected'));
-            placedPlants = 0;
-            selectedPlant = null;
-            selectedCell = null;
-            updateGridCount();
-            showMessage('已重置所有植物');
-        });
-        
-        // 导出 - 仅导出阵容编辑区域
-        exportBtn.addEventListener('click', () => {
-            const grid = document.querySelector('.battle-grid');
-            
-            html2canvas(grid, {
-                backgroundColor: null, // 透明背景
-                scale: 2, // 提高导出图片质量
-                logging: false,
-            }).then(canvas => {
-                const link = document.createElement('a');
-                link.download = '植物布阵.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-                showMessage('阵容图片已导出');
-            });
-        });
-        exportTxtBtn.addEventListener("click",()=>{
-            const cells = document.querySelectorAll('.grid-cell');
-            let txt='';
-            let count=0;
-            cells.forEach(cell => {
-                const plant = cell.querySelector('.plant-in-cell');
-                if (plant) {
-                    txt+=plant.dataset.name[0];
-                }
-                else{
-                    txt+="空";
-                }
-                count++;
-                if(count % 9 ==0){
-                    txt+="\n";
-                }
-            });
-            navigator.clipboard.writeText(txt).then(() => {
-                showMessage('阵容文字已复制到剪切板');
-            }).catch(err => {
-                console.error('复制失败:', err);
-                showMessage('复制失败');
-            });
-        });
-        importBtn.addEventListener("click", () => {
-            navigator.clipboard.readText().then(text => {
-                // 按换行符分割文本，并过滤掉空行（如果有的话）
-                let lines = text.split(/\r?\n/).filter(line => line.trim().length > 0);
-                
-                if (lines.length>5){
-                    throw new Error("行数超过5");
-                }
-                if (lines.some(line => line.length > 9)) {
-                    throw new Error("存在行超过9个字符");
-                }
-                
-                const cells = document.querySelectorAll('.grid-cell');
-                cells.forEach(cell => {
-                    const plant = cell.querySelector('.plant-in-cell');
-                    if (plant) {
-                        cell.removeChild(plant);
-                    }
-                });
-                placedPlants = 0;
-                updateGridCount();
-                for(let i=0;i<lines.length;i++){
-                    for(let j=0;j<lines[i].length;j++){
-                        const cell=document.querySelector(`.grid-cell[data-row="${i}"][data-col="${j}"]`);
-                        if(lines[i][j]=="空")continue;
-                        for(let k=0;k<plants.length;k++){
-                            if (plants[k].name[0]==lines[i][j]){
-                                placePlant(cell,plants[k],show_message=false);
-                                break;
-                            }
-                        }
+            let isScrolling = false;
+            window.addEventListener('wheel', function(e) {
+                if (document.querySelector('.hero').getBoundingClientRect().top>=0 && !isScrolling) {
+                    if (e.deltaY > 0) {
+                        isScrolling = true;
+                        document.querySelector('.features').scrollIntoView({ 
+                            behavior: 'smooth' 
+                        });
+                        setTimeout(function() {
+                            isScrolling = false;
+                        }, 1000);
                     }
                 }
-                
-            }).catch(err => {
-                console.error('读取失败:', err);
-                showMessage('读取失败');
             });
         });
-        // 更新已放置植物计数
-        function updateGridCount() {
-            gridCount.textContent = `${placedPlants} / 45 已放置`;
-        }
-        function showMessage(text) {
-            const newMessage = document.createElement('div');
-            newMessage.className = 'message';
-            newMessage.textContent = text;
-            newMessage.style.display = 'block';
-            document.body.appendChild(newMessage);
-            setTimeout(() => {
-                newMessage.style.opacity = '0';
-                newMessage.style.transition = 'opacity 0.5s ease-out';
-            }, 1000);
-            setTimeout(() => {
-                newMessage.remove();
-            }, 1500);
-        }
     </script>
 </body>
 </html>
