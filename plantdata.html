@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S6包版 植物wiki</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .plant-detail-container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .back-button {
+            padding: 8px 15px;
+            background: #d4ffc8;
+            border-radius: 4px;
+            border: none;
+        }
+        
+        .detail-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .detail-image {
+            width: 200px;
+            height: 200px;
+            background-color: #E8F5E9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 30px;
+            border-radius: 8px;
+        }
+        
+        .detail-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .detail-description {
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+        
+        .features-section{
+            margin-bottom: 30px;
+        }
+        
+        .section-title {
+            font-size: 20px;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 5px;
+        }
+        
+        .feature-list {
+            list-style-type: disc;
+            padding-left: 20px;
+        }
+        
+        .feature-list li {
+            margin-bottom: 8px;
+        }
+        
+        img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .feature-list li br {
+            content: "";
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">S6包版 植物wiki</div>
+        <a href="plantlist.html" class="back-button">返回植物列表</a>
+    </div>
+    
+    <div class="plant-detail-container" id="plantDetailContainer">
+    </div>
+    <script src="plantdata.js"></script>
+    <script>
+        function getPlantIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return parseInt(urlParams.get('id')) || 0;
+        }
+
+        // 根据ID获取植物数据
+        function getPlantById(id) {
+            return plantsData.find(plant => plant.id === id) || plantsData[0];
+        }
+        // 渲染植物详情页
+        function renderPlantDetail(plant) {
+            const container = document.getElementById('plantDetailContainer');
+            const processedFeatures = plant.features.map(feature => {
+                return feature.replace(/\r\n|\n|\r/g, '<br>');
+            });
+            container.innerHTML = `
+                
+                <div class="detail-header">
+                    <div class="detail-image">
+                        <img src="image/${plant.id}.png" alt="${plant.name}" class="img">
+                    </div>
+                    <div>
+                        <h1 class="detail-title">${plant.name}</h1>
+                        <p class="detail-description">${plant.description}</p>
+                    </div>
+                </div>
+                
+                <div class="features-section">
+                    <h2 class="section-title">属性</h2>
+                    <ul class="feature-list">
+                        ${processedFeatures.map(feature => `<li>${feature}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            const plantId = getPlantIdFromUrl();
+            const plant = getPlantById(plantId);
+            renderPlantDetail(plant);
+        });
+    </script>
+</body>
+</html>

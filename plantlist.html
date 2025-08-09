@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S6包版植物wiki - 植物列表</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        
+        .header {
+            position: sticky;
+            top: 0;
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .plants-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .plants-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            padding: 10px;
+        }
+        
+        .plant-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .plant-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .plant-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background-color: #f9f9f9;
+        }
+        
+        .plant-image {
+            width: 100px;
+            height: 100px;
+            object-fit: contain;
+            margin-bottom: 10px;
+        }
+        
+        .plant-name {
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .plant-name:hover {
+            text-decoration: underline;
+        }
+        
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .back-button {
+            padding: 8px 15px;
+            background: #d4ffc8;
+            border-radius: 4px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">S6包版植物wiki</div>
+        <a href="index.html" class="back-button">← 返回</a>
+    </div>
+    
+    <div class="plants-container">
+        <h1>植物列表</h1>
+        <div class="plants-grid" id="plantsGrid">
+            <!-- 植物卡片将通过JS动态生成 -->
+        </div>
+    </div>
+
+    <script src="plantdata.js"></script>
+    <script>
+        // 渲染植物网格列表
+        function renderPlantsGrid() {
+            const gridContainer = document.getElementById('plantsGrid');
+            
+            plantsData.forEach(plant => {
+                const card = document.createElement('div');
+                card.className = 'plant-card';
+                
+                card.innerHTML = `
+                    <a href="plantdata.html?id=${plant.id}" class="plant-link">
+                        <img src="image/${plant.id}.png" alt="${plant.name}" class="plant-image">
+                        <span class="plant-name">${plant.name}</span>
+                    </a>
+                `;
+                gridContainer.appendChild(card);
+            });
+        }
+        
+        // 页面加载时渲染网格
+        document.addEventListener('DOMContentLoaded', renderPlantsGrid);
+    </script>
+</body>
+</html>
