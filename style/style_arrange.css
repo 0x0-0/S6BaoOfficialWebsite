@@ -273,16 +273,6 @@ h1 {
     margin-top: 25px;
     padding: 25px;
 }
-.crew {
-    background: #ffffff;
-    margin-top: 25px;
-    padding: 25px;
-}
-.crew_pic{
-    width: 100%;
-    max-width: 100px;
-    height: auto;
-}
 
 .back-button {
   top: 15px;
