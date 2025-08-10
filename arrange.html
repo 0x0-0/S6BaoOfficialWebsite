@@ -61,6 +61,7 @@
 { id: 8, name: '小喷'},
 { id: 9, name: '阳光菇'},
 { id: 10, name: '喷神'},
+{ id: 11, name: '墓碑吞噬者'},
 { id: 12, name: '魅惑菇'},
 { id: 13, name: '胆小菇'},
 { id: 14, name: '川 冰川菇'},
@@ -79,6 +80,7 @@
 { id: 27, name: '叶'},
 { id: 28, name: '裂夹'},
 { id: 29, name: '杨桃' },
+{ id: 30, name: '南瓜头' },
 { id: 31, name: '磁力菇' },
 { id: 32, name: '卷心菜' },
 { id: 33, name: '盆' },
@@ -96,7 +98,7 @@
 { id: 45, name: '吸金磁'},
 { id: 46, name: '钢地刺'},
 { id: 47, name: '炮 玉米加农炮'},
-{ id: 48, name: '随机'},
+{ id: 48, name: '礼盒'},
 { id: 49, name: '爆炸坚果'},
 { id: 51, name: '飘飘'},
 { id: 52, name: '反向双发'},
@@ -207,7 +209,7 @@
         function placePlant(cell, plant, show_message=true) {
             // 如果单元格已有植物，先移除
             if(plant.id==61){
-                plant = plants[Math.floor(Math.random() * (plants.length))];
+                plant = plants[Math.floor(Math.random() * (plants.length-1))];
             }
             const existingPlant = cell.querySelector('.plant-in-cell');
             if (existingPlant) {
