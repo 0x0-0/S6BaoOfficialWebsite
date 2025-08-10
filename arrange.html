@@ -107,7 +107,7 @@
 { id: 58, name: '板栗小队'},
 { id: 59, name: '鳄梨'},
 { id: 60, name: '强酸柠檬'},
-
+{ id: 61, name: '随机植物'}
 ];
 
         // 初始化网格
@@ -206,6 +206,9 @@
         // 放置植物
         function placePlant(cell, plant, show_message=true) {
             // 如果单元格已有植物，先移除
+            if(plant.id==61){
+                plant = plants[Math.floor(Math.random() * (plants.length))];
+            }
             const existingPlant = cell.querySelector('.plant-in-cell');
             if (existingPlant) {
                 cell.removeChild(existingPlant);
