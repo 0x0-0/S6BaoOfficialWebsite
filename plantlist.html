@@ -95,6 +95,26 @@
             border-radius: 4px;
             border: none;
         }
+        
+        /* 新增搜索框样式 */
+        .search-container {
+            margin-bottom: 20px;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            border-color: #4CAF50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -105,6 +125,12 @@
     
     <div class="plants-container">
         <h1>植物列表</h1>
+        
+        <!-- 新增搜索框 -->
+        <div class="search-container">
+            <input type="text" class="search-box" id="searchBox" placeholder="搜索植物名称...">
+        </div>
+        
         <div class="plants-grid" id="plantsGrid">
             <!-- 植物卡片将通过JS动态生成 -->
         </div>
@@ -113,10 +139,20 @@
     <script src="plantdata.js"></script>
     <script>
         // 渲染植物网格列表
-        function renderPlantsGrid() {
+        function renderPlantsGrid(filter = '') {
             const gridContainer = document.getElementById('plantsGrid');
+            gridContainer.innerHTML = ''; // 清空现有内容
             
-            plantsData.forEach(plant => {
+            const filteredPlants = plantsData.filter(plant => 
+                plant.name.toLowerCase().includes(filter.toLowerCase())
+            );
+            
+            if (filteredPlants.length === 0) {
+                gridContainer.innerHTML = '<p>没有找到匹配的植物</p>';
+                return;
+            }
+            
+            filteredPlants.forEach(plant => {
                 const card = document.createElement('div');
                 card.className = 'plant-card';
                 
@@ -131,7 +167,15 @@
         }
         
         // 页面加载时渲染网格
-        document.addEventListener('DOMContentLoaded', renderPlantsGrid);
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPlantsGrid();
+            
+            // 添加搜索框事件监听
+            const searchBox = document.getElementById('searchBox');
+            searchBox.addEventListener('input', (e) => {
+                renderPlantsGrid(e.target.value);
+            });
+        });
     </script>
 </body>
 </html>
