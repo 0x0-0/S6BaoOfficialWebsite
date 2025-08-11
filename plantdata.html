@@ -136,7 +136,7 @@
                     </div>
                     <div>
                         <h1 class="detail-title">${plant.name}</h1>
-                        <p class="detail-description">${plant.description}</p>
+                        <p class="detail-description">${plant.description.replace(/\r\n|\n|\r/g, '<br>')}</p>
                     </div>
                 </div>
                 
