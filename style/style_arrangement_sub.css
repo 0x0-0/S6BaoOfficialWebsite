@@ -1,0 +1,274 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+}
+.container {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+        
+.header {
+    top: 0;
+    background-color: #4CAF50;
+    color: white;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.logo {
+    font-size: 24px;
+    font-weight: bold;
+}
+.back-button {
+    padding: 8px 15px;
+    background: #d4ffc8;
+    border-radius: 4px;
+    border: none;
+}
+.grid-container {
+    background-color: #ffffff;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.battle-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    padding: 10px;
+    border-radius: 8px;
+}
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+    display: none;
+}
+
+.grid-container {
+    background-color: #ffffff;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.grid-cell {
+    border: 1px solid #e0e0e0;
+    aspect-ratio: 1/1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+        
+.grid-cell:hover {
+    background-color: #f9f9f9;
+    transform: scale(1.05);
+}
+        
+.plant-in-cell {
+    width: 80%;
+    height: 80%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+}
+        
+.plant-library {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.plants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+}
+        
+.plant-item {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    position: relative;
+    transition: all 0.2s ease;
+}
+        
+.plant-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.plant-thumbnail {
+    width: 80%;
+    height: 80%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.plant-id {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 0.7rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+.delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.grid-cell:hover .delete-btn {
+    opacity: 1;
+}
+.selection-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background-image: url('../image/glove.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 10;
+    display: none;
+}
+.plant-item.selected, .grid-cell.selected {
+    position: relative;
+}
+
+.plant-item.selected .selection-indicator,
+.grid-cell.selected .selection-indicator {
+    display: block;
+}
+.sub-section {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+    gap: 20px;
+    width: 100%;
+    overflow: hidden;
+}
+
+.sub-btn {
+    background-color: #2e7d32;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+#arrangement-sub-form {
+    justify-content: center;
+    max-width: 600px;
+    margin: 10px auto;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+}
+.submissions-section {
+    margin-top: 20px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.submission-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.submission-item:last-child {
+    border-bottom: none;
+}
+
+.submission-info {
+    font-size: 14px;
+    color: #666;
+}
+
+.submission-arrangement {
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+.delete-submission {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+    float: right;
+    font-size: 16px;
+}
+.requirements-section {
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    border-left: 4px solid #4CAF50;
+}
+
+.requirements-list {
+    padding-left: 20px;
+    margin: 10px 0;
+}
+
+.requirements-list li {
+    margin-bottom: 8px;
+    color: #555;
+}
+
+.banned-plants {
+    color: #f44336;
+    font-weight: bold;
+}

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水友赛投稿</title>
+    <link rel="stylesheet" href="style/style_arrangement_sub.css">
+</head>
+<body oncontextmenu='return false;' onselectstart="return false;" ondragstart="return false;">
+    <div class="header">
+        <div class="logo">水友赛投稿</div>
+        <a href="index.html" class="back-button">←返回</a>
+    </div>
+    <div class="container">
+        <!--阵容要求-->
+        <div class="requirements-section">
+            <h3>阵容要求</h3>
+            <ul class="requirements-list">
+                <li>队伍中同时含有冰与火（双发算火）</li>
+                <li>队伍中必须有重复植物</li>
+            </ul>
+            <div id="requirements-error" class="error-message"></div>
+        </div>
+        <div class="container">
+            <div class="grid-container">
+                <div class="battle-grid" id="battle-grid"></div>
+            </div>
+            <div class="plant-library">
+                <div class="plants-grid" id="plants-grid"></div>
+            </div>
+            <div class="sub-section">
+                <form id="arrangement-sub-form">
+                    <input type="text" id="name" name="name" required placeholder="输入昵称...">
+                </form>
+            </div>
+
+            <div class="sub-section">
+                <button class="sub-btn" id="sub-btn">提交</button>
+            </div>
+        </div>
+        <!--下面显示已有投稿（编号+名字+文字形式）-->
+        <div class="submissions-section">
+            <h3>已有投稿</h3>
+            <div id="submissions-list"></div>
+        </div>
+        </div>
+    </div>
+    <script>
+        const plants = [    
+{ id: 0, name: '狙'},
+{ id: 1, name: '麦'},
+{ id: 3, name: '坚'},
+{ id: 4, name: '雷'},
+{ id: 5, name: '寒'},
+{ id: 6, name: '嘴'},
+{ id: 7, name: '双'},
+{ id: 8, name: '小'},
+{ id: 9, name: '阳'},
+{ id: 10, name: '喷'},
+{ id: 12, name: '魅'},
+{ id: 13, name: '胆'},
+{ id: 14, name: '川'},
+{ id: 17, name: '窝'},
+{ id: 18, name: '三'},
+{ id: 19, name: '草'},
+{ id: 22, name: '火'},
+{ id: 23, name: '高'},
+{ id: 24, name: '海'},
+{ id: 25, name: '灯'},
+{ id: 26, name: '仙'},
+{ id: 27, name: '叶'},
+{ id: 28, name: '裂'},
+{ id: 29, name: '星' },
+{ id: 31, name: '磁' },
+{ id: 32, name: '卷' },
+{ id: 34, name: '玉' },
+{ id: 36, name: '蒜' },
+{ id: 37, name: '伞' },
+{ id: 38, name: '花'},
+{ id: 39, name: '瓜'},
+{ id: 40, name: '机'},
+{ id: 41, name: '冻'},
+{ id: 42, name: '曾'},
+{ id: 43, name: '猫'},
+{ id: 44, name: '冰'},
+{ id: 45, name: '吸'},
+{ id: 46, name: '刺'},
+{ id: 49, name: '爆'},
+{ id: 51, name: '飘'},
+{ id: 52, name: '反'},
+];
+        const battleGrid = document.getElementById('battle-grid');
+        const plantsGrid = document.getElementById('plants-grid');
+        const subButton = document.getElementById("sub-btn");
+        const submissionsList = document.getElementById("submissions-list");
+        let selectedPlant = null;
+        let selectedCell = null;
+        for (let col = 0; col < 5; col++) {
+            const cell = document.createElement('div');
+            cell.className = 'grid-cell';
+            cell.dataset.row = 0;
+            cell.dataset.col = col;
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'selection-indicator';
+            cell.appendChild(indicator);
+            // 点击放置植物
+            cell.addEventListener('click', () => {
+                if (selectedPlant) {//已选择植物库中的植物
+                    placePlant(cell, selectedPlant);
+                    return;
+                }
+                const hasPlant = cell.querySelector('.plant-in-cell') !== null;
+                if (!selectedCell && hasPlant) {//没有选择且点击的单元格有植物
+                    selectCell(cell);
+                    cell.classList.add('selected');
+                    return;
+                }
+                //已选择单元格
+                if (selectedCell) {
+                    // 点击了已选择的单元格
+                    if (selectedCell === cell) {
+                        deselectCell();
+                    } 
+                    // 点击了不同单元格
+                    else {
+                        swapPlants(selectedCell, cell);
+                        deselectCell(show_message=false);
+                    }
+                }
+            });
+            battleGrid.appendChild(cell);
+        }
+        plants.forEach(plant => {
+            const plantItem = document.createElement('div');
+            plantItem.className = 'plant-item';
+            plantItem.dataset.id = plant.id;
+            
+            const thumbnail = document.createElement('div');
+            thumbnail.className = 'plant-thumbnail';
+            thumbnail.style.backgroundImage = `url('image/${plant.id}.png')`;
+            
+            const idLabel = document.createElement('span');
+            idLabel.className = 'plant-id';
+            idLabel.textContent = plant.id;
+            
+            const indicator = document.createElement('div');
+            indicator.className = 'selection-indicator';
+            
+            plantItem.appendChild(thumbnail);
+            plantItem.appendChild(idLabel);
+            plantItem.appendChild(indicator);
+            
+            plantItem.addEventListener('click', () => {
+                document.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+                if(selectedPlant != plant){
+                    selectedPlant = plant;
+                    selectedCell = null;
+                    plantItem.classList.add('selected');
+                    showMessage(`已选择: ${plant.name}`);
+                }
+                else{
+                    selectedPlant=null;
+                    showMessage(`已取消选择`);
+                }
+
+            });            
+            plantsGrid.appendChild(plantItem);
+        });
+        function placePlant(cell, plant, show_message=true) {
+            const existingPlant = cell.querySelector('.plant-in-cell');
+            if (existingPlant) {
+                cell.removeChild(existingPlant);
+            }
+            const plantElement = document.createElement('div');
+            plantElement.className = 'plant-in-cell';
+            plantElement.style.backgroundImage = `url('image/${plant.id}.png')`;
+            plantElement.dataset.id = plant.id;
+            plantElement.dataset.name = plant.name;
+
+            // 添加删除按钮
+            const deleteBtn = document.createElement('button');
+            deleteBtn.className = 'delete-btn';
+            deleteBtn.innerHTML = '×';
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation(); // 阻止事件冒泡
+                removePlant(cell);
+            });
+            plantElement.appendChild(deleteBtn);
+            cell.appendChild(plantElement);
+            if(show_message){
+                showMessage(`已放置: ${plant.name}`);
+            }
+        }
+        function removePlant(cell) {
+            const plant = cell.querySelector('.plant-in-cell');
+            if (plant) {
+                cell.removeChild(plant);
+                showMessage('已移除植物');
+            }
+        }
+        function selectCell(cell) {
+            selectedCell = cell;
+            const plantId = cell.querySelector('.plant-in-cell')?.dataset.id;
+            const plantName = plants.find(p => p.id == plantId)?.name;
+            showMessage(`已选择: ${plantName}`);
+        }
+        function deselectCell(show_message=true) {
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+                selectedCell = null;
+                if(show_message){showMessage('已取消选择');}
+            }
+        }
+        function swapPlants(cell1, cell2) {
+            const plant1 = cell1.querySelector('.plant-in-cell');
+            const plant2 = cell2.querySelector('.plant-in-cell');
+            
+            // 保存植物数据
+            const plant1Data = plant1 ? {
+                id: plant1.dataset.id,
+                name: plant1.dataset.name,
+                image: plant1.style.backgroundImage
+            } : null;
+            const plant2Data = plant2 ? {
+                id: plant2.dataset.id,
+                name: plant2.dataset.name,
+                image: plant2.style.backgroundImage
+            } : null;
+            // 先移除两个单元格的植物
+            if (plant1) cell1.removeChild(plant1);
+            if (plant2) cell2.removeChild(plant2);
+            // 重新放置植物
+            if (plant1Data) {
+                placePlant(cell2, {
+                    id: plant1Data.id,
+                    name: plant1Data.name,
+                    image: plant1Data.image.replace(/url\(["']?(.*?)["']?\)/, "$1")
+                }, false);
+            }
+            if (plant2Data) {
+                placePlant(cell1, {
+                    id: plant2Data.id,
+                    name: plant2Data.name,
+                    image: plant2Data.image.replace(/url\(["']?(.*?)["']?\)/, "$1")
+                }, false);
+            }
+            showMessage('已交换植物位置');
+        }
+        function showMessage(text) {
+            const newMessage = document.createElement('div');
+            newMessage.className = 'message';
+            newMessage.textContent = text;
+            newMessage.style.display = 'block';
+            document.body.appendChild(newMessage);
+            setTimeout(() => {
+                newMessage.style.opacity = '0';
+                newMessage.style.transition = 'opacity 0.5s ease-out';
+            }, 1000);
+            setTimeout(() => {
+                newMessage.remove();
+            }, 1500);
+        }
+        function export_arrangement(){
+            const cells = document.querySelectorAll('.grid-cell');
+            let txt='';
+            cells.forEach(cell => {
+                const plant = cell.querySelector('.plant-in-cell');
+                if (plant) {
+                    txt+=plant.dataset.name;
+                }
+                else{
+                    txt+="空";
+                }
+            });
+            console.log(txt)
+            return txt;
+        }
+        function filter(arrangement) {
+            
+            const bannedPlants = ['冰', '飘', '窝', '花', '磁'];
+            
+            // 检查禁用植物
+            for (const plant of bannedPlants) {
+                if (arrangement.includes(plant)) {
+                    showMessage(`提交失败 禁止使用植物: ${plant}`);
+                    return false;
+                }
+            }
+            
+            // 检查是否有空
+            if (arrangement.includes('空')) {
+                showMessage('提交失败 阵容不能含空');
+                return false;
+            }
+            const reqiuredPlants1=['寒','川','冻'];
+            let flag=0;
+            for (const plant of reqiuredPlants1) {
+                if (arrangement.includes(plant)) {
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==0){
+                showMessage(`提交失败 阵容不包含冰`);
+                return false;
+            }
+            const reqiuredPlants2=['火','双','反'];
+            flag=0;
+            for (const plant of reqiuredPlants2) {
+                if (arrangement.includes(plant)) {
+                    flag=1;
+                    break;
+                }
+            }
+            if(flag==0){
+                showMessage(`提交失败 阵容不包含火`);
+                return false;
+            }
+            flag=0;
+            tmp=""
+            for(let i=0;i<arrangement.length;i++){
+                if(tmp.includes(arrangement[i])){
+                    flag=1;
+                    break;
+                }
+                tmp+=arrangement[i];
+            }
+            if(flag==0){
+                showMessage(`提交失败 阵容不包含重复植物`);
+                return false;
+            }
+            return true;
+        }
+        subButton.addEventListener("click", async () => {
+            const arrangementText = export_arrangement();
+            const nameInput = document.getElementById('name');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                showMessage('请输入昵称');
+                return;
+            }
+            if (!filter(arrangementText)) {
+                return; // 不满足要求则停止提交
+            }
+            showMessage(`提交成功${arrangementText}`)
+            
+            // 发送投稿数据到后端
+            try {
+                const response = await fetch('/api/save-arrangement', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        arrangement: arrangementText
+                    })
+                });
+                
+                if (response.ok) {
+                    showMessage('投稿成功！');
+                    // 清空昵称输入框
+                    nameInput.value = '';
+                    // 刷新投稿列表
+                    loadSubmissions();
+                } else {
+                    const errorData = await response.json();
+                    showMessage(`投稿失败: ${errorData.error || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('网络错误，请重试');
+            }
+        });
+        // 加载投稿函数
+        async function loadSubmissions() {
+            try {
+                const response = await fetch('/api/get-arrangements');
+                const submissions = await response.json();
+                submissionsList.innerHTML = '';
+                
+                if (submissions.length === 0) {
+                    submissionsList.innerHTML = '<p>暂无投稿</p>';
+                    return;
+                }
+                let count=0;
+                submissions.forEach(sub => {
+                    const submissionElement = document.createElement('div');
+                    count+=1;
+                    submissionElement.className = 'submission-item';
+                    submissionElement.innerHTML = `
+                        <div class="submission-info">#${count} - ${sub.name} (${new Date(sub.created_at).toLocaleString()})
+                            <button class="delete-submission" data-id="${sub.id}">×</button>
+                        </div>
+                        <div class="submission-arrangement">${sub.arrangement}</div>
+                    `;
+                    submissionsList.appendChild(submissionElement);
+                    
+                    // 添加删除事件
+                    const deleteBtn = submissionElement.querySelector('.delete-submission');
+                    deleteBtn.addEventListener('click', async (e) => {
+                        e.stopPropagation();
+                        const id = deleteBtn.dataset.id;
+                        if (confirm('确定要删除此投稿吗？')) {
+                            await deleteSubmission(id);
+                        }
+                    });
+                });
+            } catch (error) {
+                console.error('Error loading submissions:', error);
+                submissionsList.innerHTML = '<p>加载投稿失败</p>';
+            }
+        }
+        // 删除投稿函数
+        async function deleteSubmission(id) {
+            try {
+                const response = await fetch(`/api/delete-arrangement/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                if (response.ok) {
+                    showMessage('删除成功');
+                    loadSubmissions();
+                } else {
+                    const errorData = await response.json();
+                    showMessage(`删除失败: ${errorData.error || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('Error deleting submission:', error);
+                showMessage('删除失败，请重试');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadSubmissions);
+    </script>
+</body>
+</html>
