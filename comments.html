@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comments</title>
+    <link rel="stylesheet" href="style/style_comments.css"> <!-- 如果有样式的话 -->
+</head>
+<body>
+    <h1>Comments</h1>
+    
+    <!-- 评论表单 -->
+    <form id="comment-form">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="content">Comment:</label>
+            <textarea id="content" name="content" rows="4" required></textarea>
+        </div>
+        
+        <button type="submit">Submit Comment</button>
+    </form>
+    
+    <div id="message"></div>
+    
+    <!-- 评论显示区域 -->
+    <div id="comments-container">
+        <h2>Recent Comments</h2>
+        <div id="comments-list"></div>
+    </div>
+
+    <script>
+        // 加载评论
+        async function loadComments() {
+            try {
+                const response = await fetch('/api/comments');
+                const comments = await response.json();
+                const container = document.getElementById('comments-list');
+                container.innerHTML = '';
+                
+                if (comments.length === 0) {
+                    container.innerHTML = '<p>No comments yet. Be the first!</p>';
+                    return;
+                }
+                
+                comments.forEach(comment => {
+                    const commentElement = document.createElement('div');
+                    commentElement.className = 'comment';
+                    commentElement.innerHTML = `
+                        <div class="comment-header">
+                            <strong>${comment.name}</strong>
+                            <span>${new Date(comment.created_at).toLocaleString()}</span>
+                        </div>
+                        <div class="comment-content">${comment.content}</div>
+                    `;
+                    container.appendChild(commentElement);
+                });
+            } catch (error) {
+                console.error('Error loading comments:', error);
+                document.getElementById('comments-list').innerHTML = 
+                    '<p>Error loading comments. Please try again later.</p>';
+            }
+        }
+        
+        // 提交新评论
+        document.getElementById('comment-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const content = document.getElementById('content').value.trim();
+            const messageEl = document.getElementById('message');
+            
+            if (!name || !content) {
+                messageEl.textContent = 'Please fill all fields';
+                messageEl.style.color = 'red';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/add-comment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ name, content })
+                });
+                
+                if (response.ok) {
+                    // 清空表单并刷新评论
+                    document.getElementById('name').value = '';
+                    document.getElementById('content').value = '';
+                    messageEl.textContent = 'Comment added successfully!';
+                    messageEl.style.color = 'green';
+                    setTimeout(() => {
+                        messageEl.textContent = '';
+                        loadComments();
+                    }, 2000);
+                } else {
+                    const errorData = await response.json();
+                    messageEl.textContent = `Error: ${errorData.error || 'Failed to add comment'}`;
+                    messageEl.style.color = 'red';
+                }
+            } catch (error) {
+                console.error('Error submitting comment:', error);
+                messageEl.textContent = 'Network error. Please try again.';
+                messageEl.style.color = 'red';
+            }
+        });
+        
+        // 页面加载时获取评论
+        document.addEventListener('DOMContentLoaded', loadComments);
+    </script>
+</body>
+</html>
