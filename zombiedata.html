@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S6包版植物wiki-植物详情</title>
+    <title>S6包版僵尸wiki-僵尸详情</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -29,7 +29,7 @@
             font-weight: bold;
         }
         
-        .plant-detail-container {
+        .zombie-detail-container {
             max-width: 800px;
             margin: 20px auto;
             padding: 20px;
@@ -105,43 +105,45 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">S6包版 植物wiki</div>
-        <a href="plantlist.html" class="back-button">返回植物列表</a>
+        <div class="logo">S6包版 僵尸wiki</div>
+        <a href="zombielist.html" class="back-button">返回僵尸列表</a>
     </div>
     
-    <div class="plant-detail-container" id="plantDetailContainer">
+    <div class="zombie-detail-container" id="zombieDetailContainer">
     </div>
-    <script src="plantdata.js"></script>
+    <script src="zombiedata.js"></script>
     <script>
-        function getPlantIdFromUrl() {
+        function getZombieIdFromUrl() {
             const urlParams = new URLSearchParams(window.location.search);
             return parseInt(urlParams.get('id')) || 0;
         }
 
-        // 根据ID获取植物数据
-        function getPlantById(id) {
-            return plantsData.find(plant => plant.id === id) || plantsData[0];
+        // 根据ID获取僵尸数据
+        function getZombieById(id) {
+            return zombiesData.find(zombie => zombie.id === id) || zombiesData[0];
         }
-        // 渲染植物详情页
-        function renderPlantDetail(plant) {
-            const container = document.getElementById('plantDetailContainer');
-            const processedFeatures = plant.features.map(feature => {
+        // 渲染僵尸详情页
+        function renderZombieDetail(zombie) {
+            const container = document.getElementById('zombieDetailContainer');
+            const processedFeatures = zombie.features.map(feature => {
                 return feature.replace(/\r\n|\n|\r/g, '<br>');
             });
             container.innerHTML = `
-                
                 <div class="detail-header">
                     <div class="detail-image">
-                        <img src="image/plants/${plant.id}.png" alt="${plant.name}" class="img">
+                        <img src="image/zombies/${zombie.id}.png" alt="${zombie.name}" class="img">
                     </div>
                     <div>
-                        <h1 class="detail-title">${plant.name}</h1>
-                        <p class="detail-description">${plant.description.replace(/\r\n|\n|\r/g, '<br>')}</p>
+                        <h1 class="detail-title">${zombie.name}</h1>
+                        <p class="detail-description">
+                            血量: ${zombie.血量}<br>
+                            ${zombie.一类防具血量 ? `一类防具血量: ${zombie.一类防具血量}<br>` : ''}
+                            ${zombie.二类防具血量 ? `二类防具血量: ${zombie.二类防具血量}<br>` : ''}
+                        </p>
                     </div>
                 </div>
-                
                 <div class="features-section">
-                    <h2 class="section-title">属性</h2>
+                    <h2 class="section-title">特性</h2>
                     <ul class="feature-list">
                         ${processedFeatures.map(feature => `<li>${feature}</li>`).join('')}
                     </ul>
@@ -149,9 +151,9 @@
             `;
         }
         document.addEventListener('DOMContentLoaded', () => {
-            const plantId = getPlantIdFromUrl();
-            const plant = getPlantById(plantId);
-            renderPlantDetail(plant);
+            const zombieId = getZombieIdFromUrl();
+            const zombie = getZombieById(zombieId);
+            renderZombieDetail(zombie);
         });
     </script>
 </body>

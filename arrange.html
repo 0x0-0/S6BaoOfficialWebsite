@@ -175,7 +175,7 @@
             
             const thumbnail = document.createElement('div');
             thumbnail.className = 'plant-thumbnail';
-            thumbnail.style.backgroundImage = `url('image/${plant.id}.png')`;
+            thumbnail.style.backgroundImage = `url('image/plants/${plant.id}.png')`;
             
             const idLabel = document.createElement('span');
             idLabel.className = 'plant-id';
@@ -219,7 +219,7 @@
             
             const plantElement = document.createElement('div');
             plantElement.className = 'plant-in-cell';
-            plantElement.style.backgroundImage = `url('image/${plant.id}.png')`;
+            plantElement.style.backgroundImage = `url('image/plants/${plant.id}.png')`;
             plantElement.dataset.id = plant.id;
             plantElement.dataset.name = plant.name;
 

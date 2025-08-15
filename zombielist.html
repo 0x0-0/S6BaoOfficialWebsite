@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>S6包版植物wiki - 植物列表</title>
+    <title>S6包版僵尸wiki - 僵尸列表</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -29,7 +29,7 @@
             font-weight: bold;
         }
         
-        .plants-container {
+        .zombies-container {
             max-width: 1000px;
             margin: 20px auto;
             padding: 20px;
@@ -38,14 +38,14 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        .plants-grid {
+        .zombies-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 20px;
             padding: 10px;
         }
         
-        .plant-card {
+        .zombie-card {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -55,7 +55,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .plant-link {
+        .zombie-link {
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -63,25 +63,25 @@
             color: inherit;
         }
 
-        .plant-card:hover {
+        .zombie-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
             background-color: #f9f9f9;
         }
         
-        .plant-image {
+        .zombie-image {
             width: 100px;
             height: 100px;
             object-fit: contain;
             margin-bottom: 10px;
         }
         
-        .plant-name {
+        .zombie-name {
             font-weight: bold;
             color: #4CAF50;
         }
         
-        .plant-name:hover {
+        .zombie-name:hover {
             text-decoration: underline;
         }
         
@@ -96,7 +96,7 @@
             border: none;
         }
         
-        /* 新增搜索框样式 */
+        /* 搜索框样式 */
         .search-container {
             margin-bottom: 20px;
         }
@@ -119,47 +119,47 @@
 </head>
 <body>
     <div class="header">
-        <div class="logo">S6包版植物wiki</div>
+        <div class="logo">S6包版僵尸wiki</div>
         <a href="index.html" class="back-button">← 返回</a>
     </div>
     
-    <div class="plants-container">
-        <h1>植物列表</h1>
+    <div class="zombies-container">
+        <h1>僵尸列表</h1>
         
-        <!-- 新增搜索框 -->
+        <!-- 搜索框 -->
         <div class="search-container">
-            <input type="text" class="search-box" id="searchBox" placeholder="搜索植物名称...">
+            <input type="text" class="search-box" id="searchBox" placeholder="搜索僵尸名称...">
         </div>
         
-        <div class="plants-grid" id="plantsGrid">
-            <!-- 植物卡片将通过JS动态生成 -->
+        <div class="zombies-grid" id="zombiesGrid">
+            <!-- 僵尸卡片将通过JS动态生成 -->
         </div>
     </div>
 
-    <script src="plantdata.js"></script>
+    <script src="zombiedata.js"></script>
     <script>
-        // 渲染植物网格列表
-        function renderPlantsGrid(filter = '') {
-            const gridContainer = document.getElementById('plantsGrid');
+        // 渲染僵尸网格列表
+        function renderZombiesGrid(filter = '') {
+            const gridContainer = document.getElementById('zombiesGrid');
             gridContainer.innerHTML = ''; // 清空现有内容
             
-            const filteredPlants = plantsData.filter(plant => 
-                plant.name.toLowerCase().includes(filter.toLowerCase())
+            const filteredZombies = zombiesData.filter(zombie => 
+                zombie.name.toLowerCase().includes(filter.toLowerCase())
             );
             
-            if (filteredPlants.length === 0) {
-                gridContainer.innerHTML = '<p>没有找到匹配的植物</p>';
+            if (filteredZombies.length === 0) {
+                gridContainer.innerHTML = '<p>没有找到匹配的僵尸</p>';
                 return;
             }
             
-            filteredPlants.forEach(plant => {
+            filteredZombies.forEach(zombie => {
                 const card = document.createElement('div');
-                card.className = 'plant-card';
+                card.className = 'zombie-card';
                 
                 card.innerHTML = `
-                    <a href="plantdata.html?id=${plant.id}" class="plant-link">
-                        <img src="image/plants/${plant.id}.png" alt="${plant.name}" class="plant-image">
-                        <span class="plant-name">${plant.name}</span>
+                    <a href="zombiedata.html?id=${zombie.id}" class="zombie-link">
+                        <img src="image/zombies/${zombie.id}.png" alt="${zombie.name}" class="zombie-image">
+                        <span class="zombie-name">${zombie.name}</span>
                     </a>
                 `;
                 gridContainer.appendChild(card);
@@ -168,12 +168,12 @@
         
         // 页面加载时渲染网格
         document.addEventListener('DOMContentLoaded', () => {
-            renderPlantsGrid();
+            renderZombiesGrid();
             
             // 添加搜索框事件监听
             const searchBox = document.getElementById('searchBox');
             searchBox.addEventListener('input', (e) => {
-                renderPlantsGrid(e.target.value);
+                renderZombiesGrid(e.target.value);
             });
         });
     </script>
