@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>数据库管理控制台</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/languages/sql.min.js"></script>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --history-bg: #1a2035;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #1a1a2e;
+            color: #f0f0f0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(26, 32, 44, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+        
+        .admin-header {
+            background: var(--primary);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid var(--secondary);
+        }
+        
+        .admin-header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--light);
+        }
+        
+        .admin-header p {
+            color: #bdc3c7;
+        }
+        
+        .auth-section {
+            padding: 30px;
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .password-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .form-group {
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid #4a5568;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--secondary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .btn {
+            padding: 12px;
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+        }
+        
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        
+        .console-section {
+            display: none;
+            flex: 1;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        .console-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            height: calc(100% - 70px);
+        }
+        
+        .history-panel {
+            width: 30%;
+            background: var(--history-bg);
+            border-right: 1px solid #4a5568;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #4a5568;
+        }
+        
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .history-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .history-item.active {
+            border-left: 3px solid var(--secondary);
+            background: rgba(52, 152, 219, 0.15);
+        }
+        
+        .history-item.error {
+            border-left: 3px solid var(--danger);
+        }
+        
+        .history-item.success {
+            border-left: 3px solid var(--success);
+        }
+        
+        .history-item.warning {
+            border-left: 3px solid var(--warning);
+        }
+        
+        .history-sql {
+            font-family: monospace;
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 8px;
+        }
+        
+        .history-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #bdc3c7;
+        }
+        
+        .history-type {
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .query-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .console-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #4a5568;
+        }
+        
+        .query-editor-container {
+            position: relative;
+            margin-bottom: 15px;
+            flex: 0 0 auto;
+        }
+        
+        .query-editor {
+            width: 100%;
+            min-height: 150px;
+            background: #1e293b;
+            border: 1px solid #4a5568;
+            border-radius: 5px;
+            padding: 15px;
+            color: #f8fafc;
+            font-family: monospace;
+            font-size: 16px;
+            resize: vertical;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .result-container {
+            background: #1e293b;
+            border-radius: 5px;
+            overflow: hidden;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .result-header {
+            background: #334155;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .result-content {
+            flex: 1;
+            overflow: auto;
+            padding: 15px;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .data-table th {
+            background: #334155;
+            padding: 12px 15px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+        }
+        
+        .data-table td {
+            padding: 10px 15px;
+            border-bottom: 1px solid #334155;
+        }
+        
+        .data-table tr:hover {
+            background: rgba(52, 152, 219, 0.1);
+        }
+        
+        .message-container {
+            padding: 20px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow: auto;
+            flex: 1;
+        }
+        
+        .success-message {
+            color: var(--success);
+            background: rgba(39, 174, 96, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .warning-message {
+            color: var(--warning);
+            background: rgba(243, 156, 18, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .error-message {
+            color: var(--danger);
+            background: rgba(231, 76, 60, 0.1);
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 10px;
+        }
+        
+        .status-bar {
+            padding: 10px;
+            background: #334155;
+            border-top: 1px solid #4a5568;
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+        
+        .logout-btn:hover {
+            background: rgba(231, 76, 60, 0.1);
+        }
+        
+        .history-clear-btn {
+            background: transparent;
+            border: 1px solid var(--warning);
+            color: var(--warning);
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        .hljs {
+            background: transparent !important;
+            padding: 0 !important;
+        }
+        
+        .sql-highlight {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>数据库管理控制台</h1>
+            <p>管理员专用界面 - 谨慎操作</p>
+        </div>
+        
+        <div class="auth-section" id="auth-section">
+            <h2>管理员认证</h2>
+            <p>请输入管理员密码以继续</p>
+            
+            <form class="password-form" id="password-form">
+                <div class="form-group">
+                    <label for="admin-password">管理员密码</label>
+                    <input type="password" id="admin-password" class="form-control" required autocomplete="off">
+                </div>
+                
+                <button type="submit" class="btn" id="login-btn">验证并进入</button>
+            </form>
+            
+            <div class="error-message hidden" id="auth-error"></div>
+        </div>
+        
+        <div class="console-section" id="console-section">
+            <div class="console-header">
+                <h2>SQL 查询控制台</h2>
+                <button class="btn logout-btn" id="logout-btn">退出系统</button>
+            </div>
+            
+            <div class="console-wrapper">
+                <div class="history-panel">
+                    <div class="history-header">
+                        <h3>操作历史</h3>
+                        <button class="btn history-clear-btn" id="clear-history-btn">清空历史</button>
+                    </div>
+                    <div class="history-list" id="history-list"></div>
+                </div>
+                
+                <div class="query-panel">
+                    <div class="query-editor-container">
+                        <textarea class="query-editor" id="query-editor" placeholder="输入SQL语句..."></textarea>
+                    </div>
+                    
+                    <div class="btn-group">
+                        <button class="btn" id="execute-btn">执行语句</button>
+                        <button class="btn btn-warning" id="clear-btn">清空编辑器</button>
+                        <button class="btn btn-danger" id="clear-result-btn">清空结果</button>
+                    </div>
+                    
+                    <div class="result-container">
+                        <div class="result-header">
+                            <h3>执行结果</h3>
+                            <span id="result-count"></span>
+                        </div>
+                        <div class="result-content" id="result-content">
+                            <div class="message-container" id="message-container"></div>
+                            <div class="table-container">
+                                <table class="data-table" id="result-table"></table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div>状态: <span id="status-text">就绪</span></div>
+                <div>连接: <span id="db-status">Neon PostgreSQL</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let adminToken = null;
+        let historyItems = JSON.parse(localStorage.getItem('sqlHistory')) || [];
+        
+        // DOM元素
+        const authSection = document.getElementById('auth-section');
+        const consoleSection = document.getElementById('console-section');
+        const passwordForm = document.getElementById('password-form');
+        const authError = document.getElementById('auth-error');
+        const logoutBtn = document.getElementById('logout-btn');
+        const executeBtn = document.getElementById('execute-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const clearResultBtn = document.getElementById('clear-result-btn');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+        const queryEditor = document.getElementById('query-editor');
+        const resultTable = document.getElementById('result-table');
+        const resultCount = document.getElementById('result-count');
+        const statusText = document.getElementById('status-text');
+        const historyList = document.getElementById('history-list');
+        const messageContainer = document.getElementById('message-container');
+        const resultContent = document.getElementById('result-content');
+        
+        // 初始化历史记录
+        function renderHistory() {
+            historyList.innerHTML = '';
+            
+            if (historyItems.length === 0) {
+                historyList.innerHTML = '<div class="history-item"><div class="history-meta">无操作记录</div></div>';
+                return;
+            }
+            
+            historyItems.slice().reverse().forEach((item, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${item.status}`;
+                
+                // 显示SQL的前50个字符
+                const truncatedSQL = item.sql.length > 50 ? item.sql.substring(0, 50) + '...' : item.sql;
+                
+                historyItem.innerHTML = `
+                    <div class="history-sql">${truncatedSQL}</div>
+                    <div class="history-meta">
+                        <span>${item.time}</span>
+                        <span class="history-type">${item.type}</span>
+                    </div>
+                `;
+                
+                // 点击历史项填充到编辑器
+                historyItem.addEventListener('click', () => {
+                    queryEditor.value = item.sql;
+                    
+                    // 移除所有active类
+                    document.querySelectorAll('.history-item').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    
+                    // 添加active类到当前项
+                    historyItem.classList.add('active');
+                });
+                
+                historyList.appendChild(historyItem);
+            });
+        }
+        
+        // 添加历史记录
+        function addHistory(sql, status, type, result) {
+            const now = new Date();
+            const timeString = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`;
+            
+            const historyItem = {
+                sql,
+                time: timeString,
+                status,
+                type,
+                result
+            };
+            
+            historyItems.push(historyItem);
+            
+            // 限制历史记录数量
+            if (historyItems.length > 50) {
+                historyItems.shift();
+            }
+            
+            localStorage.setItem('sqlHistory', JSON.stringify(historyItems));
+            renderHistory();
+        }
+        
+        // 验证密码
+        passwordForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const password = document.getElementById('admin-password').value;
+            const loginBtn = document.getElementById('login-btn');
+            
+            if (!password) {
+                showAuthError('请输入管理员密码');
+                return;
+            }
+            
+            // 显示加载状态
+            loginBtn.textContent = '验证中...';
+            loginBtn.disabled = true;
+            hideAuthError();
+            
+            try {
+                const response = await fetch('/api/admin/verify-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ password })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // 保存令牌并显示控制台
+                    adminToken = result.token;
+                    authSection.style.display = 'none';
+                    consoleSection.style.display = 'block';
+                    statusText.textContent = '已登录';
+                    
+                    // 渲染历史记录
+                    renderHistory();
+                } else {
+                    showAuthError(result.error || '验证失败');
+                }
+            } catch (error) {
+                showAuthError('网络错误，请重试');
+            } finally {
+                // 恢复按钮状态
+                loginBtn.textContent = '验证并进入';
+                loginBtn.disabled = false;
+            }
+        });
+        
+        // 执行SQL语句
+        executeBtn.addEventListener('click', async () => {
+            const query = queryEditor.value.trim();
+            
+            if (!query) {
+                showMessage('请输入SQL语句', 'error');
+                return;
+            }
+            
+            // 检测SQL类型
+            const sqlType = detectSqlType(query);
+            
+            // 显示加载状态
+            executeBtn.textContent = '执行中...';
+            executeBtn.disabled = true;
+            statusText.textContent = '正在执行SQL语句...';
+            
+            try {
+                const response = await fetch('/api/admin/execute-query', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ query })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    // 处理不同类型的SQL结果
+                    if (Array.isArray(result.result)) {
+                        // 查询语句
+                        displayResults(result.result);
+                        showMessage(`查询成功，返回 ${result.result.length} 行数据`, 'success');
+                        statusText.textContent = `查询成功，返回 ${result.result.length} 行数据`;
+                        addHistory(query, 'success', sqlType, `${result.result.length}行数据`);
+                    } else if (result.result && typeof result.result === 'object') {
+                        // 非查询语句
+                        displayCommandResult(result.result);
+                        const rowCount = result.result.rowCount || 0;
+                        showMessage(`操作成功，影响行数: ${rowCount}`, 'success');
+                        statusText.textContent = `操作成功，影响行数: ${rowCount}`;
+                        addHistory(query, 'success', sqlType, `${rowCount}行受影响`);
+                    } else {
+                        // 其他类型的响应
+                        showMessage('操作成功', 'success');
+                        statusText.textContent = '操作成功';
+                        addHistory(query, 'success', sqlType, '操作成功');
+                    }
+                } else {
+                    // 错误处理
+                    const errorMsg = result.error || '操作失败';
+                    showMessage(errorMsg, 'error');
+                    statusText.textContent = '操作失败';
+                    addHistory(query, 'error', sqlType, errorMsg);
+                }
+            } catch (error) {
+                // 网络错误
+                const errorMsg = '网络错误，请重试';
+                showMessage(errorMsg, 'error');
+                statusText.textContent = '网络错误';
+                addHistory(query, 'error', sqlType, errorMsg);
+            } finally {
+                // 恢复按钮状态
+                executeBtn.textContent = '执行语句';
+                executeBtn.disabled = false;
+            }
+        });
+        
+        // 检测SQL类型
+        function detectSqlType(sql) {
+            sql = sql.trim().toUpperCase();
+            if (sql.startsWith('SELECT')) return 'SELECT';
+            if (sql.startsWith('INSERT')) return 'INSERT';
+            if (sql.startsWith('UPDATE')) return 'UPDATE';
+            if (sql.startsWith('DELETE')) return 'DELETE';
+            if (sql.startsWith('CREATE')) return 'CREATE';
+            if (sql.startsWith('DROP')) return 'DROP';
+            if (sql.startsWith('ALTER')) return 'ALTER';
+            return 'OTHER';
+        }
+        
+        // 显示查询结果
+        function displayResults(data) {
+            // 清空表格和消息
+            resultTable.innerHTML = '';
+            messageContainer.innerHTML = '';
+            
+            if (!data || data.length === 0) {
+                resultCount.textContent = '0 行数据';
+                return;
+            }
+            
+            // 创建表头
+            const headerRow = document.createElement('tr');
+            const columns = Object.keys(data[0]);
+            
+            columns.forEach(col => {
+                const th = document.createElement('th');
+                th.textContent = col;
+                headerRow.appendChild(th);
+            });
+            
+            resultTable.appendChild(headerRow);
+            
+            // 添加数据行
+            data.forEach(row => {
+                const tr = document.createElement('tr');
+                
+                columns.forEach(col => {
+                    const td = document.createElement('td');
+                    let value = row[col];
+                    
+                    // 格式化特殊值
+                    if (value === null) {
+                        value = '<null>';
+                        td.style.color = '#999';
+                    } else if (typeof value === 'boolean') {
+                        value = value ? 'true' : 'false';
+                    } else if (typeof value === 'object') {
+                        value = JSON.stringify(value);
+                    }
+                    
+                    td.textContent = value;
+                    tr.appendChild(td);
+                });
+                
+                resultTable.appendChild(tr);
+            });
+            
+            resultCount.textContent = `${data.length} 行数据`;
+        }
+        
+        // 显示非查询结果
+        function displayCommandResult(result) {
+            // 清空表格
+            resultTable.innerHTML = '';
+            
+            let message = '';
+            
+            if (result.command && result.rowCount !== undefined) {
+                message = `命令: ${result.command}\n影响行数: ${result.rowCount}`;
+            } else if (result) {
+                message = JSON.stringify(result, null, 2);
+            } else {
+                message = '操作成功完成';
+            }
+            
+            // 显示消息
+            messageContainer.textContent = message;
+            resultCount.textContent = '';
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            messageContainer.innerHTML = '';
+            
+            const messageEl = document.createElement('div');
+            messageEl.className = `${type}-message`;
+            
+            // 高亮SQL关键词
+            const highlighted = message.replace(
+                /(\b(SELECT|INSERT|UPDATE|DELETE|CREATE|DROP|ALTER|TABLE|FROM|WHERE|SET|INTO|VALUES|AND|OR|NOT|NULL|AS|JOIN|ON|GROUP BY|ORDER BY|LIMIT|OFFSET)\b)/gi, 
+                '<span class="sql-highlight">$1</span>'
+            );
+            
+            messageEl.innerHTML = highlighted;
+            messageContainer.appendChild(messageEl);
+            
+            // 应用高亮
+            document.querySelectorAll('.sql-highlight').forEach(el => {
+                hljs.highlightElement(el);
+            });
+        }
+        
+        // 清空编辑器
+        clearBtn.addEventListener('click', () => {
+            queryEditor.value = '';
+            statusText.textContent = '编辑器已清空';
+        });
+        
+        // 清空结果
+        clearResultBtn.addEventListener('click', () => {
+            resultTable.innerHTML = '';
+            messageContainer.innerHTML = '';
+            resultCount.textContent = '';
+            statusText.textContent = '结果已清空';
+        });
+        
+        // 清空历史
+        clearHistoryBtn.addEventListener('click', () => {
+            historyItems = [];
+            localStorage.removeItem('sqlHistory');
+            renderHistory();
+            statusText.textContent = '历史记录已清空';
+        });
+        
+        // 退出系统
+        logoutBtn.addEventListener('click', () => {
+            adminToken = null;
+            consoleSection.style.display = 'none';
+            authSection.style.display = 'block';
+            document.getElementById('admin-password').value = '';
+            statusText.textContent = '已退出';
+        });
+        
+        // 错误处理函数
+        function showAuthError(message) {
+            authError.textContent = message;
+            authError.classList.remove('hidden');
+        }
+        
+        function hideAuthError() {
+            authError.classList.add('hidden');
+        }
+        
+        // 初始状态
+        hideAuthError();
+        consoleSection.style.display = 'none';
+        
+        // 初始化代码高亮
+        hljs.configure({ ignoreUnescapedHTML: true });
+        hljs.highlightAll();
+    </script>
+</body>
+</html>
