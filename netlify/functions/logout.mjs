@@ -3,7 +3,7 @@ export default async (req, context) => {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': `token=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure`
+      'Set-Cookie': `authToken=; HttpOnly; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax; Secure`
     }
   });
 };
