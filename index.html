@@ -14,6 +14,15 @@
         <nav class="nav">
             <ul id="navLinks"></ul>
         </nav>
+        <!--以下是新增的登录部分-->
+        <div id="auth-status">
+            <a href="login.html" id="login-link">登录</a>
+            <a href="register.html" id="register-link">注册</a>
+            <div id="user-menu" style="display:none">
+                <span id="username-display"></span>
+                <button id="logout-btn">登出</button>
+            </div>
+        </div>
     </header>
 
     <main class="main-content">
@@ -39,7 +48,34 @@
     <footer class="footer">
         <a href="crew.html">S6包制作组 - 植物大战僵尸改版</a>
     </footer>
-
+    <script type="module">
+        import { checkAuth, logout } from 'auth.js';
+        
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isLoggedIn = await checkAuth();
+            const authStatus = document.getElementById('auth-status');
+            const loginLink = document.getElementById('login-link');
+            const registerLink = document.getElementById('register-link');
+            const userMenu = document.getElementById('user-menu');
+            const usernameDisplay = document.getElementById('username-display');
+            const logoutBtn = document.getElementById('logout-btn');
+            
+            if (isLoggedIn) {
+                const currentUser = getCurrentUser();
+                usernameDisplay.textContent = currentUser.username;
+                loginLink.style.display = 'none';
+                registerLink.style.display = 'none';
+                userMenu.style.display = 'block';
+            } else {
+                userMenu.style.display = 'none';
+            }
+            
+            logoutBtn.addEventListener('click', async () => {
+            await logout();
+            window.location.reload();
+            });
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // 导航菜单数据
