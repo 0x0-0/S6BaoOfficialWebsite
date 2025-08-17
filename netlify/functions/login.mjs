@@ -23,8 +23,9 @@ export default async (req) => {
         )
     `)
     // 查找用户
+    const cleanUsername = username.replace(/[<>"'`;]/g, '');
     const users = await sql`
-      SELECT * FROM users WHERE username = ${username}
+      SELECT * FROM users WHERE username = ${cleanUsername}
     `;
     
     if (users.length === 0) {

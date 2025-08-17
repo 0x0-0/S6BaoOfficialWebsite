@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>提案详情</title>
+    <link rel="stylesheet" href="style/style_proposal.css">
+    <script type="module" src="auth.js"></script>
+    <script type="module">
+    import { checkAuth, getCurrentUser } from './auth.js';
+
+    async function loadProposal() {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        if (!id) return;
+        const res = await fetch(`/api/proposal/detail?id=${id}`);
+        const data = await res.json();
+        if (!data.proposal) {
+            document.getElementById('proposal-detail').innerText = '未找到提案';
+            return;
+        }
+        const p = data.proposal;
+        document.getElementById('proposal-detail').innerHTML = `
+            <h2>${p.title}</h2>
+            <div>提出者: ${p.author}</div>
+            <div>标签: ${p.tags}</div>
+            <div>时间: ${new Date(p.created_at).toLocaleString()}</div>
+            <div>正文: <pre>${p.content}</pre></div>
+        `;
+        // 删除按钮显示
+        const user = getCurrentUser();
+        const deleteTip = document.getElementById('delete-tip');
+        if (user && user.username === p.author) {
+            deleteTip.innerHTML = `<button class="delete-btn" title="删除" onclick="deleteProposal(${p.id})">×</button>`;
+        } else {
+            deleteTip.innerHTML = '';
+        }
+        // 评论区
+        const comments = data.comments || [];
+        const clist = document.getElementById('comment-list');
+        clist.innerHTML = comments.map(c => `
+            <div class="comment-item">
+                <b>${c.author}</b> (${new Date(c.created_at).toLocaleString()}):<br>
+                ${c.content}
+            </div>
+        `).join('');
+    }
+
+    window.deleteProposal = function(id) {
+        if (!confirm('确认删除该提案？')) return;
+        const user = getCurrentUser();
+        fetch('/api/proposal/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ proposal_id: id, username: user.username })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                alert('删除成功');
+                window.location.href = 'proposal_list.html';
+            } else {
+                alert(data.error);
+            }
+        });
+    };
+
+    async function showCommentForm() {
+        const authed = await checkAuth();
+        document.getElementById('comment-form').style.display = authed ? 'block' : 'none';
+        document.getElementById('login-tip-comment').style.display = authed ? 'none' : 'block';
+    }
+
+    window.onload = () => {
+        loadProposal();
+        showCommentForm();
+    };
+
+    async function submitComment(e) {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) return alert('请先登录');
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        const content = document.getElementById('comment-content').value;
+        const res = await fetch('/api/proposal/comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                proposal_id: id,
+                author: user.username,
+                content
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('评论成功');
+            document.getElementById('comment-content').value = '';
+            loadProposal();
+        } else {
+            alert(data.error);
+        }
+    }
+    window.submitComment = submitComment;
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">提案详情</div>
+        <a href="proposal_list.html" class="back-button">← 返回列表</a>
+    </div>
+    <div class="plants-container">
+        <div id="proposal-detail"></div>
+        <div id="delete-tip" style="text-align:right; margin-bottom:10px;"></div>
+        <h3>评论区</h3>
+        <div id="comment-list"></div>
+        <form id="comment-form" style="display:none;" onsubmit="submitComment(event)">
+            <textarea id="comment-content" placeholder="输入评论" required></textarea><br>
+            <button type="submit">提交评论</button>
+        </form>
+        <div id="login-tip-comment" style="text-align:center; margin-top:20px; color:#888; font-size:18px; display:none;">
+            登录后发表，<a href="login.html" style="color:#388e3c;">前往登录</a>
+        </div>
+    </div>
+</body>
+</html>

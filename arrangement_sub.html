@@ -16,8 +16,8 @@
         <div class="requirements-section">
             <h3>阵容要求</h3>
             <ul class="requirements-list">
-                <li>队伍中同时含有冰与火（双发算火）</li>
-                <li>队伍中必须有重复植物</li>
+                <li>当前无要求</li>
+                <li>未完成植物：麦，磁，花，猫，飘</li>
             </ul>
             <div id="requirements-error" class="error-message"></div>
         </div>
@@ -27,11 +27,6 @@
             </div>
             <div class="plant-library">
                 <div class="plants-grid" id="plants-grid"></div>
-            </div>
-            <div class="sub-section">
-                <form id="arrangement-sub-form">
-                    <input type="text" id="name" name="name" required placeholder="输入昵称...">
-                </form>
             </div>
 
             <div class="sub-section">
@@ -45,7 +40,75 @@
         </div>
         </div>
     </div>
-    <script>
+    <script type="module">
+        // 导入认证模块
+        import { checkAuth, getCurrentUser } from './auth.js';
+        // 在DOM加载后检查登录状态
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 检查登录状态
+            const isAuthenticated = await checkAuth();
+            const currentUser = getCurrentUser();
+            const subButton = document.getElementById("sub-btn");
+            
+            if (isAuthenticated && currentUser) {
+                // 已登录用户
+                subButton.textContent = "提交";
+                subButton.onclick = submitArrangement;
+            } else {
+                // 未登录用户
+                subButton.textContent = "登录后提交";
+                subButton.onclick = () => {
+                    window.location.href = "login.html";
+                };
+            }
+            
+            // 加载投稿列表
+            loadSubmissions();
+        });
+
+        // 提交阵容的函数
+        async function submitArrangement() {
+            const arrangementText = export_arrangement();
+            const currentUser = getCurrentUser();
+            
+            if (!currentUser || !currentUser.username) {
+                showMessage('请先登录');
+                return;
+            }
+            
+            if (!filter(arrangementText)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/save-arrangement', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: currentUser.username,  // 使用登录用户名
+                        arrangement: arrangementText
+                    })
+                });
+                
+                if (response.ok) {
+                    showMessage('投稿成功！');
+                    loadSubmissions();
+                } else {
+                    const errorData = await response.json();
+                    showMessage(`投稿失败: ${errorData.error || '未知错误'}`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showMessage('网络错误，请重试');
+            }
+        }
+
+        // 其他函数不变...
+        
+        // 修改提交按钮事件监听
+        // 删除原有的 subButton.addEventListener("click", ...) 代码
         const plants = [    
 { id: 0, name: '狙'},
 { id: 1, name: '麦'},
@@ -278,8 +341,7 @@
         }
         function filter(arrangement) {
             
-            const bannedPlants = ['飘', '窝', '花', '磁', '麦', '猫'];
-            
+            const bannedPlants = ['飘',  '花', '磁', '麦', '猫'];
             // 检查禁用植物
             for (const plant of bannedPlants) {
                 if (arrangement.includes(plant)) {
@@ -287,93 +349,8 @@
                     return false;
                 }
             }
-            
-            // 检查是否有空
-            if (arrangement.includes('空')) {
-                showMessage('提交失败 阵容不能含空');
-                return false;
-            }
-            const reqiuredPlants1=['冰', '寒','川','冻'];
-            let flag=0;
-            for (const plant of reqiuredPlants1) {
-                if (arrangement.includes(plant)) {
-                    flag=1;
-                    break;
-                }
-            }
-            if(flag==0){
-                showMessage(`提交失败 阵容不包含冰`);
-                return false;
-            }
-            const reqiuredPlants2=['火','双','反'];
-            flag=0;
-            for (const plant of reqiuredPlants2) {
-                if (arrangement.includes(plant)) {
-                    flag=1;
-                    break;
-                }
-            }
-            if(flag==0){
-                showMessage(`提交失败 阵容不包含火`);
-                return false;
-            }
-            flag=0;
-            tmp=""
-            for(let i=0;i<arrangement.length;i++){
-                if(tmp.includes(arrangement[i])){
-                    flag=1;
-                    break;
-                }
-                tmp+=arrangement[i];
-            }
-            if(flag==0){
-                showMessage(`提交失败 阵容不包含重复植物`);
-                return false;
-            }
             return true;
         }
-        subButton.addEventListener("click", async () => {
-            const arrangementText = export_arrangement();
-            const nameInput = document.getElementById('name');
-            const name = nameInput.value.trim();
-            
-            if (!name) {
-                showMessage('请输入昵称');
-                return;
-            }
-            if (!filter(arrangementText)) {
-                return; // 不满足要求则停止提交
-            }
-            showMessage(`提交成功${arrangementText}`)
-            
-            // 发送投稿数据到后端
-            try {
-                const response = await fetch('/api/save-arrangement', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        name: name,
-                        arrangement: arrangementText
-                    })
-                });
-                
-                if (response.ok) {
-                    showMessage('投稿成功！');
-                    // 清空昵称输入框
-                    nameInput.value = '';
-                    // 刷新投稿列表
-                    loadSubmissions();
-                } else {
-                    const errorData = await response.json();
-                    showMessage(`投稿失败: ${errorData.error || '未知错误'}`);
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                showMessage('网络错误，请重试');
-            }
-        });
         // 加载投稿函数
         async function loadSubmissions() {
             try {
@@ -387,26 +364,32 @@
                 }
                 let count=0;
                 submissions.forEach(sub => {
+                    count += 1;
                     const submissionElement = document.createElement('div');
-                    count+=1;
                     submissionElement.className = 'submission-item';
+                    const currentUser = getCurrentUser();
+                    // 检查当前用户是否是投稿人
+                    const isOwner = currentUser && currentUser.username === sub.name;
+                    
                     submissionElement.innerHTML = `
                         <div class="submission-info">#${count} - ${sub.name} (${new Date(sub.created_at).toLocaleString()})
-                            <button class="delete-submission" data-id="${sub.id}">×</button>
+                            ${isOwner ? `<button class="delete-submission" data-id="${sub.id}">×</button>` : ''}
                         </div>
                         <div class="submission-arrangement">${sub.arrangement}</div>
                     `;
                     submissionsList.appendChild(submissionElement);
                     
-                    // 添加删除事件
-                    const deleteBtn = submissionElement.querySelector('.delete-submission');
-                    deleteBtn.addEventListener('click', async (e) => {
-                        e.stopPropagation();
-                        const id = deleteBtn.dataset.id;
-                        if (confirm('确定要删除此投稿吗？')) {
-                            await deleteSubmission(id);
-                        }
-                    });
+                    // 如果是当前用户的投稿，添加删除事件
+                    if (isOwner) {
+                        const deleteBtn = submissionElement.querySelector('.delete-submission');
+                        deleteBtn.addEventListener('click', async (e) => {
+                            e.stopPropagation();
+                            const id = deleteBtn.dataset.id;
+                            if (confirm('确定要删除此投稿吗？')) {
+                                await deleteSubmission(id);
+                            }
+                        });
+                    }
                 });
             } catch (error) {
                 console.error('Error loading submissions:', error);
@@ -432,8 +415,6 @@
                 showMessage('删除失败，请重试');
             }
         }
-
-        document.addEventListener('DOMContentLoaded', loadSubmissions);
     </script>
 </body>
 </html>

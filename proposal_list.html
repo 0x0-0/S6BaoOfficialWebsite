@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>S6Bao 提案列表</title>
+    <link rel="stylesheet" href="style/style_proposal.css">
+    <script type="module" src="auth.js"></script>
+    <script type="module">
+    import { checkAuth, getCurrentUser } from './auth.js';
+
+    let tagsArr = [];
+
+    function renderTags() {
+        const tagList = document.getElementById('tag-list');
+        tagList.innerHTML = tagsArr.map((tag, idx) =>
+            `<span class="tag-item">${tag} <button type="button" onclick="removeTag(${idx})">×</button></span>`
+        ).join(' ');
+        document.getElementById('tags').value = tagsArr.join(',');
+    }
+
+    window.addTag = function() {
+        const input = document.getElementById('tag-input');
+        let raw = input.value.trim();
+        if (!raw) return;
+        let newTags = raw.split(',').map(t => t.trim()).filter(t => t);
+        for (let tag of newTags) {
+            if (tag.length > 10) {
+                alert('单个tag不能超过10个字符');
+                continue;
+            }
+            if (tagsArr.length >= 5) {
+                alert('最多只能添加5个tag');
+                break;
+            }
+            if (!tagsArr.includes(tag)) tagsArr.push(tag);
+        }
+        input.value = '';
+        renderTags();
+    };
+
+    window.removeTag = function(idx) {
+        tagsArr.splice(idx, 1);
+        renderTags();
+    };
+
+    async function loadProposals() {
+        const res = await fetch('/api/proposal/list');
+        const data = await res.json();
+        const list = document.getElementById('proposal-list');
+        list.innerHTML = '';
+        if (!data.proposals || data.proposals.length === 0) {
+            list.innerHTML = '<div>暂无提案</div>';
+            return;
+        }
+        const user = getCurrentUser();
+        data.proposals.forEach(p => {
+            const item = document.createElement('div');
+            item.className = 'proposal-item';
+            item.innerHTML = `
+                <h3>${p.title}</h3>
+                <div>提出者: ${p.author}</div>
+                <div>标签: ${p.tags}</div>
+                <div>时间: ${new Date(p.created_at).toLocaleString()}</div>
+                ${user && user.username === p.author ? `<button class="delete-btn" title="删除" onclick="event.stopPropagation(); deleteProposal(${p.id})">×</button>` : ''}
+            `;
+            item.onclick = () => {
+                window.location.href = `proposal_data.html?id=${p.id}`;
+            };
+            item.style.position = 'relative';
+            list.appendChild(item);
+        });
+    }
+
+    window.deleteProposal = function(id) {
+        if (!confirm('确认删除该提案？')) return;
+        const user = getCurrentUser();
+        fetch('/api/proposal/delete', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ proposal_id: id, username: user.username })
+        }).then(res => res.json()).then(data => {
+            if (data.success) {
+                alert('删除成功');
+                loadProposals();
+            } else {
+                alert(data.error);
+            }
+        });
+    };
+
+    async function showForm() {
+        const authed = await checkAuth();
+        document.getElementById('proposal-form').style.display = authed ? 'block' : 'none';
+        document.getElementById('login-tip').style.display = authed ? 'none' : 'block';
+    }
+
+    window.onload = () => {
+        loadProposals();
+        showForm();
+        renderTags();
+    };
+
+    async function submitProposal(e) {
+        e.preventDefault();
+        const user = getCurrentUser();
+        if (!user) return alert('请先登录');
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+        const tags = tagsArr.join(',');
+        if (!tagsArr.some(t => ['植物提案','僵尸提案','其他提案'].includes(t))) {
+            alert('标签必须至少包含“植物提案”“僵尸提案”或“其他提案”之一');
+            return;
+        }
+        const res = await fetch('/api/proposal/submit', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                author: user.username,
+                title, content, tags
+            })
+        });
+        const data = await res.json();
+        if (data.success) {
+            alert('提交成功');
+            tagsArr = [];
+            renderTags();
+            loadProposals();
+        } else {
+            alert(data.error);
+        }
+    }
+    window.submitProposal = submitProposal;
+    </script>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">S6包版 提案列表</div>
+        <a href="index.html" class="back-button">← 返回</a>
+    </div>
+    <div class="plants-container">
+        <div id="proposal-list"></div>
+        <form id="proposal-form" style="display:none;" onsubmit="submitProposal(event)">
+            <h3>提交新提案</h3>
+            <input id="title" placeholder="标题" required><br>
+            <textarea id="content" placeholder="正文" required></textarea><br>
+            <div class="tag-input-row">
+                <input id="tag-input" placeholder="标签（英文逗号分隔可批量添加）">
+                <button type="button" onclick="addTag()">添加tag</button>
+            </div>
+            <div id="tag-list" style="margin:8px 0;"></div>
+            <input type="hidden" id="tags" required>
+            <button type="submit">提交</button>
+        </form>
+        <div id="login-tip" style="text-align:center; margin-top:30px; color:#888; font-size:18px; display:none;">
+            登录后发表，<a href="login.html" style="color:#388e3c;">前往登录</a>
+        </div>
+    </div>
+</body>
+</html>
+
+<style>
+</style>

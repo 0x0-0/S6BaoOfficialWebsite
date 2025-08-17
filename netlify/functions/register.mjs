@@ -12,9 +12,10 @@ export default async (req) => {
   try {
     const { username, password } = await req.json();
     const sql = neon();
+    const cleanUsername = username.replace(/[<>"'`;]/g, '');
     
     // 验证输入
-    if (!username || !password) {
+    if (!cleanUsername || !password) {
       return new Response(JSON.stringify({ error: '所有字段都是必填的' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
@@ -32,7 +33,7 @@ export default async (req) => {
     // 检查用户名/邮箱是否已存在
     const existingUser = await sql`
       SELECT * FROM users 
-      WHERE username = ${username}
+      WHERE username = ${cleanUsername}
     `;
     
     if (existingUser.length > 0) {
@@ -51,7 +52,7 @@ export default async (req) => {
     // 创建用户
     const newUser = await sql`
       INSERT INTO users (username, password_hash)
-      VALUES (${username}, ${passwordHash})
+      VALUES (${cleanUsername}, ${passwordHash})
       RETURNING id, username, created_at
     `;
     
