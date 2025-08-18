@@ -20,6 +20,7 @@ body {
 }
 
 .plants-container {
+    position: relative;
     max-width: 1000px;
     margin: 20px auto;
     padding: 20px;
@@ -201,4 +202,13 @@ body {
 }
 .delete-btn:hover {
     background: #ffcdd2;
+}
+#proposal-detail pre {
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: inherit;
+    font-size: 16px;
+    background: none;
+    padding: 0;
+    margin: 0;
 }
