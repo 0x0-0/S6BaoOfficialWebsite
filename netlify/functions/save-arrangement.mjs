@@ -32,6 +32,15 @@ export default async (req) => {
       )
     `);
     
+    // 检查是否已投稿
+    const exist = await sql`SELECT id FROM arrangements WHERE name = ${name} LIMIT 1`;
+    if (exist.length > 0) {
+      return new Response(JSON.stringify({ error: '每个账号只能投稿一次' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
     // 插入新投稿
     await sql`
       INSERT INTO arrangements (name, arrangement)
