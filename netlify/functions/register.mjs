@@ -38,7 +38,7 @@ export default async (req) => {
     
     if (existingUser.length > 0) {
       return new Response(JSON.stringify({ 
-        error: '用户名或邮箱已被使用' 
+        error: '用户名已被使用' 
       }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
