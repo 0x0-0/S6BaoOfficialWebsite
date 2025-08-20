@@ -349,6 +349,8 @@
             return txt;
         }
         function filter(arrangement) {
+            showMessage("已经截止");
+            return false;
             // 禁用植物
             const bannedPlants = ['飘', '花', '麦', '猫'];
             for (const plant of bannedPlants) {
