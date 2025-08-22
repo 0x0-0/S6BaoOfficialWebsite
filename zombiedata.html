@@ -136,7 +136,8 @@
                     <div>
                         <h1 class="detail-title">${zombie.name}</h1>
                         <p class="detail-description">
-                            血量: ${zombie.本体血量}<br>
+                            类型：${zombie.type || '普通'}<br>
+                            本体血量: ${zombie.本体血量}<br>
                             ${zombie.一类防具血量 ? `一类防具血量: ${zombie.一类防具血量}<br>` : ''}
                             ${zombie.二类防具血量 ? `二类防具血量: ${zombie.二类防具血量}<br>` : ''}
                         </p>
