@@ -1,0 +1,250 @@
+body {
+    font-family: "Microsoft YaHei", Arial, sans-serif;
+    background: #f7f7fa;
+    margin: 0;
+    padding: 0;
+}
+.admin-header {
+    background: #3a7bd5;
+    color: #fff;
+    padding: 20px 0 10px 0;
+    text-align: center;
+}
+.input-section, .query-section, .display-section {
+    background: #fff;
+    margin: 20px auto;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 700px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+.time-input {
+    margin: 12px 0;
+}
+.time-input input {
+    font-size: 16px;
+    padding: 2px 6px;
+    margin: 0 2px;
+    border-radius: 4px;
+    border: 1px solid #b6c7e3;
+}
+#upload-btn {
+    background: #3a7bd5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 24px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+#upload-btn:hover {
+    background: #2857a7;
+}
+.message, .error-message {
+    margin-top: 10px;
+    color: #ff4d4f;
+    font-size: 15px;
+    display: none;
+}
+.query-section input {
+    width: 220px;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    border: 1px solid #b6c7e3;
+}
+#query-btn {
+    background: #3a7bd5;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    margin-left: 8px;
+}
+.display-section {
+    margin-bottom: 40px;
+}
+.data-item {
+    background: #f2f6fc;
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.data-arrangement {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 4px;
+}
+.data-times {
+    color: #333;
+    font-size: 14px;
+    margin-bottom: 2px;
+}
+.data-times-list {
+    color: #888;
+    font-size: 13px;
+}
+.container {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+.grid-container {
+    background-color: #ffffff;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.battle-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 3px;
+    padding: 10px;
+    border-radius: 8px;
+}
+.message {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(0, 0, 0, 0.8);
+    padding: 10px 20px;
+    border-radius: 5px;
+    color: white;
+    z-index: 1000;
+    display: none;
+}
+
+.grid-container {
+    background-color: #ffffff;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+.grid-cell {
+    border: 1px solid #e0e0e0;
+    aspect-ratio: 1/1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+        
+.grid-cell:hover {
+    background-color: #f9f9f9;
+    transform: scale(1.05);
+}
+        
+.plant-in-cell {
+    width: 80%;
+    height: 80%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+}
+        
+.plant-library {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.plants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+    gap: 10px;
+}
+        
+.plant-item {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background-color: #f5f5f5;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: grab;
+    position: relative;
+    transition: all 0.2s ease;
+}
+        
+.plant-item:hover {
+    transform: scale(1.05);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.plant-thumbnail {
+    width: 80%;
+    height: 80%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.plant-id {
+    position: absolute;
+    bottom: 2px;
+    right: 5px;
+    font-size: 0.7rem;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 2px 4px;
+    border-radius: 2px;
+}
+.delete-btn {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 16px;
+    height: 16px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 10px;
+    line-height: 16px;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+.grid-cell:hover .delete-btn {
+    opacity: 1;
+}
+.selection-indicator {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background-image: url('../image/glove.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 10;
+    display: none;
+}
+.plant-item.selected, .grid-cell.selected {
+    position: relative;
+}
+
+.plant-item.selected .selection-indicator,
+.grid-cell.selected .selection-indicator {
+    display: block;
+}
