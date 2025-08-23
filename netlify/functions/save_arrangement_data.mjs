@@ -42,7 +42,6 @@ export default async (req) => {
       const newTimes = [...exist[0].times, time];
       await sql`UPDATE arrangement_data SET times = ${newTimes} WHERE id = ${exist[0].id}`;
     } else {
-      console.log(1);
       await sql`INSERT INTO arrangement_data (arrangement, times) VALUES (${arrangement}, ARRAY[${time}]::integer[])`;
     }
     return new Response(JSON.stringify({ success: true }), {
