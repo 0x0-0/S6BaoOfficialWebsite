@@ -11,7 +11,16 @@ export default async (req, context) => {
   try {
     const id = context.params.id;
     const sql = neon();
-    
+    //id为-1:全部删除
+    if (id === '-1') {
+      await sql`
+        DELETE FROM arrangements
+      `;
+      return new Response(JSON.stringify({ success: true }), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
     // 删除投稿
     const result = await sql`
       DELETE FROM arrangements 

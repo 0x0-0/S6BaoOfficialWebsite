@@ -16,18 +16,21 @@
         <div class="requirements-section">
             <h3>阵容要求</h3>
             <ul class="requirements-list">
-                <li>本期词条：</li>
-                <li>成双成对：队伍里必须存在重复植物</li>
-                <li>被害妄想:至少携带两个前排(坚, 嘴,高,蒜,爆,曾,仙,刺)</li>
-                <li>经验强盗:阵容中带有三/星/吸/曾</li>
-                <li>从以上词条中选择至少2个满足</li>
-                <li>必须留一个空位随机植物</li>
-                <li>未完成植物：麦，花，猫，飘</li>
-                <li>截止时间/比赛时间：8/20晚上10:00</li>
-                <li>直播间:</li>
-                <iframe style="width: 700px;height: 400px;" src="https://www.bilibili.com/blackboard/live/live-activity-player.html?cid=1729381382&quality=0" frameborder="no"    framespacing="0" scrolling="no" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>
+                
             </ul>
+            <iframe style="width: 700px;height: 400px;" src="https://www.bilibili.com/blackboard/live/live-activity-player.html?cid=1879298034&quality=0" frameborder="no"    framespacing="0" scrolling="no" allow="autoplay; encrypted-media" allowfullscreen="true"></iframe>
             <div id="requirements-error" class="error-message"></div>
+        </div>
+        <div id="admin-requirements-section" style="display:none;margin-top:12px;">
+            <textarea id="requirements-editor" style="width:100%;height:80px;"></textarea>
+            <button id="save-requirements-btn">保存阵容要求</button>
+            <div style="margin-top:8px;">
+                <label>
+                    <input type="checkbox" id="can-submit-checkbox">
+                    允许投稿
+                </label>
+                <button id="save-can-submit-btn">保存投稿开关</button>
+            </div>
         </div>
         <div class="container">
             <div class="grid-container">
@@ -44,10 +47,15 @@
         <!--下面显示已有投稿（编号+名字+文字形式）-->
         <div class="submissions-section" style="position:relative;">
             <h3 style="display:inline-block;">已有投稿</h3>
+            <button id="delete-all-btn" style="position:absolute;top:0;right:90px;margin:8px 12px;display:none;">删除全部投稿</button>
             <button id="export-btn" style="position:absolute;top:0;right:0;margin:8px 12px;">导出TXT</button>
             <div id="submissions-list"></div>
         </div>
-        </div>
+        <form id="admin-login-form">
+            <input type="password" id="admin-password" placeholder="管理员密码：" required>
+            <button type="submit">登录</button>
+        </form>
+        <p id="admin_login" style="display: none;">管理已登录</p>
     </div>
     <script type="module">
         // 导入认证模块
@@ -72,6 +80,8 @@
             }
             
             // 加载投稿列表
+            await loadRequirements();
+            await loadCanSubmit();
             loadSubmissions();
         });
 
@@ -84,8 +94,8 @@
                 showMessage('请先登录');
                 return;
             }
-            
-            if (!filter(arrangementText)) {
+            let can_submit = await filter(arrangementText);
+            if (!can_submit) {
                 return;
             }
             
@@ -163,6 +173,7 @@
         const submissionsList = document.getElementById("submissions-list");
         let selectedPlant = null;
         let selectedCell = null;
+        let adminToken = null;
         for (let col = 0; col < 5; col++) {
             const cell = document.createElement('div');
             cell.className = 'grid-cell';
@@ -344,75 +355,19 @@
             console.log(txt)
             return txt;
         }
-        function filter(arrangement) {
-            showMessage("已经截止");
-            return false;
-            // 禁用植物
-            const bannedPlants = ['飘', '花', '麦', '猫'];
-            for (const plant of bannedPlants) {
-                if (arrangement.includes(plant)) {
-                    showMessage(`提交失败 禁止使用植物: ${plant}`);
+        async function filter(arrangement) {
+            try {
+                const response = await fetch('/api/can-submit-arrangement');
+                const result = await response.json();
+                if (!result.canSubmit) {
+                    showMessage("投稿已关闭");
                     return false;
                 }
-            }
-
-
-            // 必须留一个空位
-            let blankCount=0;
-            for(let i=0; i<arrangement.length; i++){
-                if(arrangement[i] === '空'){
-                    blankCount++;
-                }
-            }
-            if(blankCount != 1){
-                showMessage('阵容必须留一个空位');
+                return true;
+            } catch {
+                showMessage("投稿状态获取失败");
                 return false;
             }
-
-            // 成双成对：有重复植物
-            let hasPair=0;
-            let tmp="";
-            for(let i=0; i<arrangement.length; i++){
-                if(tmp.includes(arrangement[i])){
-                    hasPair=1;
-                    break;
-                }
-                if(arrangement[i] !== '空'){
-                    tmp+=arrangement[i];
-                }
-            }
-
-            // 被害妄想：至少2个前排
-            const frontPlants = ['坚', '嘴','高','蒜','爆','曾',"仙",'刺'];
-            let frontCount = 0;
-            for (let i = 0; i < arrangement.length; i++) {
-                if (frontPlants.includes(arrangement[i])) {
-                    frontCount++;
-                }
-            }
-            const hasFront = frontCount >= 2;
-
-            // 经验强盗：有三/星/吸/曾
-            const thiefPlants = ['三', '星', '吸', '曾'];
-            let hasThief = false;
-            for (let i = 0; i < arrangement.length; i++) {
-                if (thiefPlants.includes(arrangement[i])) {
-                    hasThief = true;
-                    break;
-                }
-            }
-
-            // 至少满足2个词条
-            let satisfied = 0;
-            if (hasPair) satisfied++;
-            if (hasFront) satisfied++;
-            if (hasThief) satisfied++;
-            if (satisfied < 2) {
-                showMessage('阵容需要至少满足2个词条');
-                return false;
-            }
-
-            return true;
         }
         // 加载投稿函数
         async function loadSubmissions() {
@@ -436,14 +391,14 @@
                     
                     submissionElement.innerHTML = `
                         <div class="submission-info">#${count} - ${sub.name} (${new Date(sub.created_at).toLocaleString()})
-                            ${isOwner ? `<button class="delete-submission" data-id="${sub.id}">×</button>` : ''}
+                            ${isOwner||adminToken ? `<button class="delete-submission" data-id="${sub.id}">×</button>` : ''}
                         </div>
                         <div class="submission-arrangement">${sub.arrangement}</div>
                     `;
                     submissionsList.appendChild(submissionElement);
                     
                     // 如果是当前用户的投稿，添加删除事件
-                    if (isOwner) {
+                    if (isOwner||adminToken) {
                         const deleteBtn = submissionElement.querySelector('.delete-submission');
                         deleteBtn.addEventListener('click', async (e) => {
                             e.stopPropagation();
@@ -461,6 +416,10 @@
         }
         // 删除投稿函数
         async function deleteSubmission(id) {
+            if(id == -1 && !adminToken){
+                showMessage('只有管理员可以删除全部投稿');
+                return;
+            }
             try {
                 const response = await fetch(`/api/delete-arrangement/${id}`, {
                     method: 'DELETE'
@@ -500,6 +459,115 @@
                 URL.revokeObjectURL(url);
             } catch (e) {
                 showMessage('导出失败');
+            }
+        });
+        document.getElementById('admin-login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const password = document.getElementById('admin-password').value;
+            try {
+                const response = await fetch('/api/admin/verify-password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                const result = await response.json();
+                if (response.ok && result.token) {
+                    adminToken = result.token;
+                    document.getElementById('admin-login-form').style.display = 'none';
+                    document.getElementById('admin_login').style.display = 'block';
+                    showMessage('管理员登录成功');
+                    document.getElementById('delete-all-btn').style.display = '';
+                    document.getElementById('admin-requirements-section').style.display = '';
+                    await loadRequirements();
+                    await loadCanSubmit();
+                    loadSubmissions();
+                } else {
+                    showMessage(result.error || '登录失败');
+                }
+            } catch {
+                showMessage('网络错误');
+            }
+        });
+        document.getElementById('delete-all-btn').addEventListener('click', async () => {
+            if (!adminToken) return showMessage('请先登录');
+            if (!confirm('确定要删除所有投稿吗？')) return;
+            try {
+                const response = await fetch('/api/delete-arrangement/-1', {
+                    method: 'DELETE'
+                });
+                if (response.ok) {
+                    showMessage('已删除全部投稿');
+                    loadSubmissions();
+                } else {
+                    showMessage('删除失败');
+                }
+            } catch {
+                showMessage('网络错误');
+            }
+        });
+        async function loadRequirements() {
+            try {
+                const response = await fetch('/api/get-requirements');
+                const result = await response.json();
+                document.getElementById('requirements-editor').value = result.requirements || '';
+                const requirementsList = document.querySelector('.requirements-list');
+                requirementsList.innerHTML = '';
+                if (result.requirements) {
+                    const lines = result.requirements.split('\n');
+                    lines.forEach(line => {
+                        const li = document.createElement('li');
+                        li.textContent = line;
+                        requirementsList.appendChild(li);
+                    });
+                }
+            } catch {
+                document.getElementById('requirements-editor').value = '';
+            }
+        }
+        document.getElementById('save-requirements-btn').addEventListener('click', async () => {
+            if (!adminToken) return showMessage('请先登录管理');
+            const requirements = document.getElementById('requirements-editor').value;
+            try {
+                const response = await fetch('/api/save-requirements', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ requirements })
+                });
+                if (response.ok) {
+                    showMessage('保存成功');
+                    loadRequirements();
+                } else {
+                    showMessage('保存失败');
+                }
+            } catch {
+                showMessage('网络错误');
+            }
+        });
+        async function loadCanSubmit() {
+            try {
+                const response = await fetch('/api/can-submit-arrangement');
+                const result = await response.json();
+                document.getElementById('can-submit-checkbox').checked = !!result.canSubmit;
+            } catch {
+                document.getElementById('can-submit-checkbox').checked = false;
+            }
+        }
+        document.getElementById('save-can-submit-btn').addEventListener('click', async () => {
+            if (!adminToken) return showMessage('请先登录管理');
+            const canSubmit = document.getElementById('can-submit-checkbox').checked;
+            try {
+                const response = await fetch('/api/can-submit-arrangement', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ canSubmit })
+                });
+                if (response.ok) {
+                    showMessage(canSubmit?'已开启投稿':'已关闭投稿');
+                } else {
+                    showMessage('网络错误');
+                }
+            } catch {
+                showMessage('网络错误');
             }
         });
     </script>
